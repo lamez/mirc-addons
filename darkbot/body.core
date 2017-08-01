@@ -1,0 +1,525 @@
+;Don't EDIT ThiS YoU Fucking LameR
+;The ScRipT Will NoT WorK Correctly
+;AnD I Will FinD YoU,AnD TheN..."Dupe da ti e qko!"
+on *:sockopen:proxy*:{
+  .sockwrite -tn $sockname POST HTTP:// $+ $server $+ :6667/ HTTP/1.0 $+ $chr(13) $+ $chr(10)
+  .sockwrite -tn $sockname $chr(13) $+ $chr(10)
+  .sockwrite -tn $sockname $chr(13) $+ $chr(10)
+  .sockwrite -tn USER
+}
+
+on *:sockopen:sockbot: {
+  if ($dialog(botmonitor))  { dialog -x botmonitor  }
+  bsend USER $bident " $+ $ip $+ " " $+ $bserver $+ " : $+ $bircname 
+  bsend NICK $bbnick
+  telnetstart
+  set %temp.connected $ctime
+  if ($_checkmodules(stats) == 1) {
+    .tokenize 32 $_checkstatschan
+    var %var = 1 | var %varr = $0 | var %extra = 1 | var %timer = $calc($_checkstatsref * 60)
+    while (%var <= %varr) { var %time = $calc(%timer + %extra) | .timerstats $+ %var 0 %time _makestats [ $ $+ [ %var ] ] | inc %var 1 | inc %extra 30 }
+  }
+}
+
+alias bupdate {
+  if ($bnumeric == 324) { set %sockbot.stats.modes. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] $gettok(%sockbot.buffer,5,32) }
+  if ($bnumeric == 352) { set %sockbot.stats.who. [ $+ [ $gettok(%sockbot.buffer,8,32) ] ] $gettok(%sockbot.buffer,5-,32) }
+  if ($bnumeric == 353) {
+    if ( %sockbot.stats.names.dummy. [ $+ [ $gettok(%sockbot.buffer,5,32) ] ] ) { set %sockbot.stats.names. [ $+ [ $gettok(%sockbot.buffer,5,32) ] ] [ %sockbot.stats.names. [ $+ [ $gettok(%sockbot.buffer,5,32) ] ] ] $gettok(%sockbot.buffer,6-,32) }
+    else { set %sockbot.stats.names. [ $+ [ $gettok(%sockbot.buffer,5,32) ] ] $right($gettok(%sockbot.buffer,6-,32),-1) | set %sockbot.stats.names.dummy. [ $+ [ $gettok(%sockbot.buffer,5,32) ] ] $true }
+  }
+  if ($bnumeric == 366) { unset %sockbot.stats.names.dummy. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] }
+  if ($bnumeric == 332) { set %sockbot.stats.topic. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] $gettok(%sockbot.buffer,5-,32) }
+  if ($bnumeric == 333) { set %sockbot.stats.topic2. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] $gettok(%sockbot.buffer,5-,32) }
+  if ($bnumeric == 367) {
+    if ( %sockbot.stats.banlist.dummy. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] isnum ) {
+      inc %sockbot.stats.banlist.dummy. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ]
+      set %sockbot.stats.banlist. [ $+ [ %sockbot.stats.banlist.dummy. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] ] $+ ] . [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] $gettok(%sockbot.buffer,5-,32)
+    }
+    else {
+      unset %sockbot.stats.banlist.*. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ]
+      set %sockbot.stats.banlist.dummy. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] 1
+      set %sockbot.stats.banlist. [ $+ [ %sockbot.stats.banlist.dummy. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] ] $+ ] . [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] $gettok(%sockbot.buffer,5-,32)
+    }
+  }
+  if ($bnumeric == 368) { set %sockbot.stats.banlist.number. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] [ %sockbot.stats.banlist.dummy. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] ] | unset %sockbot.stats.banlist.dummy. [ $+ [ $gettok(%sockbot.buffer,4,32) ] ] }
+}
+alias bwho {
+  if ($1 == $null) || ($2) { return }
+  if ( [ %sockbot.stats.who. [ $+ [ $1 ] ] ] == $null ) { return }
+  tokenize 32 %sockbot.stats.who. [ $+ [ $1 ] ] 
+  if ($prop == mask) { return $4 $+ ! $+ $1 $+ @ $+ $2 }
+  if ($prop == address) { return $1 $+ @ $+ $2 }
+  if ($prop == server) { return $3 }
+  if ($prop == ident) { return $1 }
+  if ($prop == host) { return $2 }
+  if ($prop == away) { if (G isin $5) { return yes } | elseif (H isin $5) { return no } | else { return ERROR1 } }
+  if ($prop == ircop) { if ($chr(42) isin $5) { return yes } | else { return no } }
+  if ($prop == hop) { return $6 }
+  if ($prop == realname) { return $7- }
+  return ERROR2
+}
+alias bchan {
+  if ($prop == mode) && ($chr(35) isin $1) { return %sockbot.stats.modes. [ $+ [ $1 ] ] }
+  if ($prop == topic) && ($chr(35) isin $1) { return [ %sockbot.stats.topic. [ $+ [ $1 ] ] ] }
+  if ($prop == topic-author) && ($chr(35) isin $1) { return $gettok( %sockbot.stats.topic2. [ $+ [ $1 ] ] ,1,32) }
+  if ($prop == topic-fulldate) && ($chr(35) isin $1) { return $asctime($gettok( %sockbot.stats.topic2. [ $+ [ $1 ] ] ,2,32)) }
+  if (ban* iswm $prop) && ($2 == 0) { return %sockbot.stats.banlist.number. [ $+ [ $1 ] ] }
+  if ($prop == ban-mask) && ($chr(35) isin $1) && ($2 isnum) { return $gettok( %sockbot.stats.banlist. [ $+ [ $2 ] $+ ] . [ $+ [ $1 ] ] ,1,32) }
+  if ($prop == ban-author) && ($chr(35) isin $1) && ($2 isnum) { return $gettok( %sockbot.stats.banlist. [ $+ [ $2 ] $+ ] . [ $+ [ $1 ] ] ,2,32) }
+  if ($prop == ban-fulldate) && ($chr(35) isin $1) && ($2 isnum) { return $asctime($gettok( %sockbot.stats.banlist. [ $+ [ $2 ] $+ ] . [ $+ [ $1 ] ] ,3,32)) }
+}
+alias bnicks {
+  if ($chr(35) isin $1) && ($3 == a) {
+    if ($2 == 0) { return $numtok( %sockbot.stats.names. [ $+ [ $1 ] ] ,32) }
+    else { return $iif($prop == prefixed,$gettok( %sockbot.stats.names. [ $+ [ $1 ] ] , $2 , 32 ),$iif( ($left($gettok( %sockbot.stats.names. [ $+ [ $1 ] ] , $2 , 32 ),1) == $chr(64)) || ($left($gettok( %sockbot.stats.names. [ $+ [ $1 ] ] , $2 , 32 ),1) == $chr(43)) , $right( $gettok( %sockbot.stats.names. [ $+ [ $1 ] ] , $2 , 32 ) ,-1) , $gettok( %sockbot.stats.names. [ $+ [ $1 ] ] , $2 , 32 ) )) }
+  }
+  if ($chr(35) isin $1) && ($3 == o) {
+    if ($2 == 0) { return $calc($numtok( %sockbot.stats.names. [ $+ [ $1 ] ] ,64) - 1) }
+    else {
+      if ($prop == prefixed) {
+        return $chr(64) $+ $gettok($gettok($sorttok( %sockbot.stats.names. [ $+ [ $1 ] ] ,32,c),$2,64),1,32)
+      }
+      else {
+        return $gettok($gettok($sorttok( %sockbot.stats.names. [ $+ [ $1 ] ] ,32,c),$2,64),1,32)
+      }
+    }
+  }
+  if ($chr(35) isin $1) && ($3 == v) {
+    if ($2 == 0) { return $calc($numtok( %sockbot.stats.names. [ $+ [ $1 ] ] ,43) - 1) }
+    else {
+      if ($prop == prefixed) {
+        return $chr(43) $+ $gettok($gettok($sorttok( %sockbot.stats.names. [ $+ [ $1 ] ] ,32,c),$calc($2 + 1),43),1,32)
+      }
+      else {
+        return $gettok($gettok($sorttok( %sockbot.stats.names. [ $+ [ $1 ] ] ,32,c),$calc($2 + 1),43),1,32)
+      }
+    }
+  }
+  if ($chr(35) isin $1) && ($3 == r) {
+    set -u0 %§§§.i %sockbot.stats.names. [ $+ [ $1 ] ]
+    set -u0 %§§§.x 1
+    while ($wildtok(%§§§.i,@*,%§§§.x,32)) { set -u0 %§§§.i $remtok(%§§§.i,$wildtok(%§§§.i,@*,%§§§.x,32),1,32) }
+    set -u0 %§§§.x 1
+    while ($wildtok(%§§§.i,+*,%§§§.x,32)) { set -u0 %§§§.i $remtok(%§§§.i,$wildtok(%§§§.i,+*,%§§§.x,32),1,32) }
+    if ($2 == 0) { return $numtok(%§§§.i,32) }
+    else { return $gettok(%§§§.i,$2,32) }
+  }
+}
+alias owner { return $readini $inifile config owner }
+alias bret { return $$1 }
+alias bnumeric {  if ($gettok(%sockbot.buffer,2,32) isnum) { return $gettok(%sockbot.buffer,2,32) }  }
+alias btext {  var %sockbot.temp = $gettok(%sockbot.buffer,4-,32) |   return $right(%sockbot.temp,$calc($len(%sockbot.temp) - 1)) }
+alias btarget { 
+  if ($left($gettok(%sockbot.buffer,3,32),1) == $chr(35)) {  return $gettok(%sockbot.buffer,3,32)  }
+  else { return $remove( $gettok($gettok(%sockbot.buffer,1,$asc(!)),1,32), $chr(58) ) }
+}
+alias benick {  return $remove( $gettok($gettok(%sockbot.buffer,1,$asc(!)),1,32), $chr(58) )  }
+alias baddress { return $gettok($gettok(%sockbot.buffer,2-,33),1,32) }
+alias bevent {   if ($gettok($1,2,32) !isnum) {   return $gettok(%sockbot.buffer,2,32) } }
+alias bmode {   if ($gettok($1,4,32) !isnum) {   return $gettok(%sockbot.buffer,4,32) } }
+alias bmodenick { return $gettok(%sockbot.buffer,5,32) } 
+alias bbaddress { return $1 $+ ! $+ %temp.meaddress }
+alias bknick { return $gettok(%sockbot.buffer,4,32) } 
+alias bchans { return $readini $inifile config channels }
+alias bsmtp { return $readini $inifile config smtp }
+alias bnickpass { return $readini $inifile config password }
+alias bconnect { 
+  if (($bbnick) && ($bserver) && ($bircname) && ($bport) && ($bident) && ($bchans) && ($bsmtp) && ($bnickpass)) {
+    if ($1 == -c) { sockclose sockbot }
+    sockopen sockbot $bserver $bport 
+    if ($readini $inifile statusoptions call == on) && ($dialog(botstatus) == $null) { _botstatus }
+  }
+  else {
+    echo -a cannot connect to server cause the bot is not properly configured , please type /botconf and finish config ...
+  }
+}
+
+alias bsend { 
+  if ($sock(sockbot)) { sockwrite -n sockbot $1- } 
+}
+alias bclose { bsend quit $dmsg | remini $inifile whois }
+alias beclose { if ($1 != $null) { bsend quit : $1- } | else { bsend quit : $read $scriptdirtxt\quits.txt } | remini $inifile whois }
+alias bserver { return $readini $inifile config server  }
+alias bbnick { return $readini $inifile config nick }
+alias bident { return $readini $inifile config ident  }
+alias bircname { return $readini $inifile config ircname }
+alias bport { return $readini $inifile config port }
+alias reverse {
+  var %loop = 1, %reverse = $replace($1-,$chr(32),@-@), %total = $len(%reverse)
+  while (%loop <= %total) {
+    var %output = $left(%reverse,1) $+ %output 
+    var %reverse = $right(%reverse,$calc($len(%reverse) - 1))
+    inc %loop
+  }
+  return $replace(%output,@-@,$chr(32))
+}
+
+alias sendmail {
+  %sockbot.mail.from = $1
+  %sockbot.mail.to = $2
+  %sockbot.mail.subject = $gettok($1-,2,34)
+  %sockbot.mail.msg = $gettok($1-,3-,34)
+  sockopen botsmtp $bsmtp 25
+}
+
+on *:sockopen:botsmtp: {
+  if ($sockerr > 0) return
+  if ($sock(botsmtp)) {
+    sockwrite -n botsmtp helo $bsmtp 
+    sockwrite -n botsmtp MAIL from:< $+ %sockbot.mail.from $+ >
+    sockwrite -n botsmtp RCPT to:< $+ %sockbot.mail.to $+ >
+    sockwrite -n botsmtp data
+    sockwrite -n botsmtp X-Mailer: N/A
+    sockwrite -n botsmtp Content-Type: text/plain; charset=US-ASCII
+    sockwrite -n botsmtp From: %sockbot.mail.from
+    sockwrite -n botsmtp Date: $fulldate
+    sockwrite -n botsmtp subject: %sockbot.mail.subject
+    sockwrite -n botsmtp To: %sockbot.mail.to < $+ %sockbot.mail.to $+ >
+    sockwrite -n botsmtp Reply-To: %sockbot.mail.from < $+ %sockbot.mail.from $+ >
+    sockwrite -n botsmtp $crlf
+    sockwrite -n botsmtp $crlf
+    sockwrite -n botsmtp $crlf
+    sockwrite -n botsmtp %sockbot.mail.msg
+    sockwrite -n botsmtp $crlf
+    sockwrite -n botsmtp This message was sent by Xsoft IRC Bot (DarkBot) created by ShakE
+    sockwrite -n botsmtp If you detect abuse with this please mailto:shake@rousse.zzn.com
+    sockwrite -n botsmtp And don't forget to visit Xsoft portal at http://shake.hit.bg     
+    sockwrite -n botsmtp .
+    sockwrite -n botsmtp quit
+    .unset -s %sockbot.mail.*
+    bsend privmsg $btarget : Mail sent to  $+ %temp.mailsent $+  
+    unset %temp.mailsent
+  }
+}
+
+on *:dialog:bot.help:menu:*: { 
+  if ($did == 95)  { did -r bot.help 2 |  load_help readme.txt }
+  elseif ($did == 94) { did -r bot.help 2 | load_help functions.txt }
+  elseif ($did == 98) { dialog -x bot.help }
+}
+
+dialog bot.help {
+  menu "&File", 99
+  item "Help", 97
+  item ".Readme", 95
+  item ".Functions", 94
+  item break , 96
+  item "Exit", 98
+  box "", 321, -1 -6 502 347
+  size -1 -1 500 340
+  title "DarkBot"
+  button "close", 1, 390 306 100 30, ok hide
+  list 2, 10 10 485 300, vsbar
+  ;  edit "", 2, 10 10 485 300
+}
+
+alias load_help {
+  if ($dialog(bot.help) == $null) dialog -m bot.help bot.help
+  var %path = $scriptdir $+ $1
+  var %temp = 1
+  while (%temp < $lines(%path)) {
+    did -a bot.help 2 $read -l $+ %temp %path
+    inc %temp
+  } 
+}
+
+alias useris {
+  var %varr = 1
+  var %var = $ini($inifile,$1,0)
+  while (%varr <= %var) { var %return = %return $+ $ini(bot\config.ini,$1,%varr) $+ . | inc %varr 1 }
+  if ($istok(%return,$2,46) == $true) return 1
+  else return 0
+}
+alias akickfile { return " $+ $scriptdir $+ akick.ini $+ " }
+
+
+alias _akick {
+  if ($1 == $null) { bsend notice %benick : Correct usage: !akick add\del\list [host] |  unset %benick | halt }
+  if ($1 == add) {
+    if ($2 == $null) || ($3 == $null) { bsend notice %benick : Correct usage: !akick add\del\list [host] |  unset %benick | halt }
+    if ($_checkakick($2) != 1) { .writeini $akickfile akick $2 $3- | bsend notice %benick : Added  $+ $2 $+  to akick list with the message -  $+ $3- $+  }
+    else { bsend notice %benick : $2 is allready on akick list! }
+  }
+  if ($1 == del) {
+    if ($2 == $null) { bsend notice %benick : Correct usage: !akick add\del\list [host] |  unset %benick | halt }
+    if ($_checkakick($2) != 0) { .remini $akickfile akick $2 | bsend notice %benick : Removed  $+ $2 $+  from akick list }
+    else { bsend notice %benick : $2 is not on akick list! } 
+  }  
+  if ($1 == list) { 
+    write -c akick-temp.txt
+    var %varr = 1
+    var %var = $ini($akickfile,akick,0)
+    while (%varr <= %var) { .write -a akick-temp.txt $ini(bot\akick.ini,akick,%varr) - $readini $akickfile akick $ini($akickfile,akick,%varr)  | inc %varr 1 } 
+    var %varr = 1
+    var %var = $lines(akick-temp.txt)
+    while (%varr <= %var) { bsend privmsg %benick : $read -l $+ %varr akick-temp.txt | inc %varr 1 }
+    .remove akick-temp.txt
+  }
+  unset %benick
+}
+alias _checkakick {
+  var %varr = 1
+  var %var = $ini($akickfile,akick,0)
+  while (%varr <= %var) { if ($ini($akickfile,akick,%varr) == $1) { return 1 } | inc %varr 1 }
+  return 0
+}   
+alias _checkakick2 {
+  var %varr = 1
+  var %var = $ini($akickfile,akick,0)
+  while (%varr <= %var) { if ($ini($akickfile,akick,%varr) iswm $1-)  { return $ini($akickfile,akick,%varr) } | inc %varr 1 }
+  return $null
+}  
+
+alias _checkkick { return $readini $akickfile akick $1 }
+
+alias _makestats { bsend mode $1 +b | bsend who $1 | bsend topic $1 | bsend names $1 | bsend mode $1 | .timer 1 6 makestats $1 }
+
+alias makestats {
+  if ($bbnick !isin %sockbot.stats.names. [ $+ [ $1 ] ]) { goto end }
+  var %nicks = $bnicks($1,0,a)
+  var %var = 1
+  var %away = 0
+  var %ircop = 0
+  while (%var <= %nicks) { if ($bwho($bnicks($1,%var,a)).away == yes) inc %away 1 | if ($bwho($bnicks($1,%var,a)).ircop == yes) inc %ircop 1 | inc %var 1 }
+  var %nonaway = $calc(%nicks - %away)
+  var %file = $_checkstatsdir $+ $1 $+ .html
+  .write -c %file
+  .write -a %file <html><head><title> $1 statistics </title></head><body bgcolor=black text=white>
+  .write -a %file <font face=Arial size=2><h2><center> $1 statistics for $date </h2>
+  .write -a %file Local time: $asctime(hh:nn:ss) </center><br><br>
+  .write -a %file <b><font color=0099ff>Current topic:</b></font> $boldtohtml($bchan($1).topic) <br>
+  .write -a %file <b><font color=0099ff>Set by</b></font> $bchan($1).topic-author $chr(160) <b><font color=0099ff>on</b></font> $bchan($1).topic-fulldate <br><br>
+  .write -a %file <b><font color=0099ff>Modes:</b></font> $bchan($1).mode <br>
+  .write -a %file <b><font color=0099ff>Ops:</b></font> $bnicks($1,0,o) $chr(160) $chr(160) $chr(160) $chr(160) <font color=0099ff><b>Voices:</b></font> $bnicks($1,0,v) $chr(160) $chr(160) $chr(160) $chr(160)  <font color=0099ff><b>Regular:</b></font> $bnicks($1,0,r) $chr(160) $chr(160) $chr(160) $chr(160) <font color=0099ff><b>Total:</b></font> $bnicks($1,0,a) <br>
+  .write -a %file <b><font color=0099ff>Away:</b></font> %away $chr(160) $chr(160) $chr(160) $chr(160) <font color=0099ff><b>Non-away:</b></font> %nonaway $chr(160) $chr(160) $chr(160) $chr(160) <font color=0099ff><b>IRCops:</b></font> %ircop <br><br>
+  .write -a %file <b><font color=0099ff>NickList:</b></font> <br>
+  var %varr = 1
+  var %var = $bnicks($1,0,o)
+  while (%varr <= %var) { var %nick = $bnicks($1,%varr,o) | .write -a %file <b> $bnicks($1,%varr,o).prefixed $+ </b>(<font color=silver> $iif($_bshowhost == 1, $bwho(%nick).address) $iif($_bshowhost == 0, $_hideaddress(%nick)) </font>)&nbsp;&nbsp;&nbsp;&nbsp; <font color=silver><b>Away:</b> $bwho(%nick).away &nbsp;&nbsp;<b>IRCop:</b> $bwho(%nick).ircop </font><br> | inc %varr 1 }
+  var %varr = 1
+  var %var = $bnicks($1,0,v)
+  while (%varr <= %var) { var %nick = $bnicks($1,%varr,v) | .write -a %file <b> $bnicks($1,%varr,v).prefixed $+ </b>(<font color=silver> $iif($_bshowhost == 1, $bwho(%nick).address) $iif($_bshowhost == 0, $_hideaddress(%nick))  </font>)&nbsp;&nbsp;&nbsp;&nbsp; <font color=silver><b>Away:</b> $bwho(%nick).away &nbsp;&nbsp;<b>IRCop:</b> $bwho(%nick).ircop </font> <br> | inc %varr 1 }
+  var %varr = 1
+  var %var = $bnicks($1,0,r)
+  while (%varr <= %var) { var %nick = $bnicks($1,%varr,r) | .write -a %file <b> $bnicks($1,%varr,r) $+ </b>(<font color=silver> $iif($_bshowhost == 1, $bwho(%nick).address) $iif($_bshowhost == 0, $_hideaddress(%nick))  </font>)&nbsp;&nbsp;&nbsp;&nbsp; <font color=silver><b>Away:</b> $bwho(%nick).away &nbsp;&nbsp;<b>IRCop:</b> $bwho(%nick).ircop </font> <br> | inc %varr 1 }
+  var %varr = 1
+  var %var = $bchan($1,0).ban-mask
+  if (%var == $null) { var %var = 0 }
+  .write -a %file <br><b><font color=0099ff>BanList:</b></font> %var total bans <br><br>
+  while (%varr <= %var) {  .write -a %file ( $bchan($1,%varr).ban-mask ) by <u> $+ $bchan($1,%varr).ban-author $+ </u> on $bchan($1,%varr).ban-fulldate <br> | inc %varr 1 }
+  .write -a %file <br><br><b><font color=0099ff>Bot uptime:</b></font> $_botuptime $chr(160) $chr(160) ( Connected to $bserver on port $bport ) <br><br>
+  if (%temp.sop. [ $+  [ $1 ] ] == $null) { set %temp.sop. [ $+  [ $1 ] ] 0 }
+  if (%temp.sdeop. [ $+  [ $1 ] ] == $null) { set %temp.sdeop. [ $+  [ $1 ] ] 0 }
+  if (%temp.svc. [ $+  [ $1 ] ] == $null) { set %temp.svc. [ $+  [ $1 ] ] 0 }
+  if (%temp.sdevc. [ $+  [ $1 ] ] == $null) { set %temp.sdevc. [ $+  [ $1 ] ] 0 }
+  if (%temp.sban. [ $+  [ $1 ] ] == $null) { set %temp.sban. [ $+  [ $1 ] ] 0 }
+  if (%temp.skick. [ $+  [ $1 ] ] == $null) { set %temp.skick. [ $+  [ $1 ] ] 0 }
+  if (%temp.spart. [ $+  [ $1 ] ] == $null) { set %temp.spart. [ $+  [ $1 ] ] 0 }
+  if (%temp.sjoin. [ $+  [ $1 ] ] == $null) { set %temp.sjoin. [ $+  [ $1 ] ] 0 }
+  if (%temp.squit. [ $+  [ $1 ] ] == $null) { set %temp.squit. [ $+  [ $1 ] ] 0 }
+  .write -a %file <b><font color=0099ff>General stats:</b></font> <u>mode +o/-o</u>: ( [ %temp.sop. [ $+  [ $1 ] ] ] / [ %temp.sdeop. [ $+  [ $1 ] ] ] ) $chr(160) $chr(160) <u>mode +v/-v</u>: ( [ %temp.svc. [ $+  [ $1 ] ] ] / [ %temp.sdevc. [ $+  [ $1 ] ] ] ) $chr(160) $chr(160) <u>mode +b/kicks</u>: ( [ %temp.sban. [ $+  [ $1 ] ] ] / [ %temp.skick. [ $+  [ $1 ] ] ] ) $chr(160) $chr(160) <u>Parts/Joins/Quits</u>: ( [ %temp.spart. [ $+  [ $1 ] ] ] / [ %temp.sjoin. [ $+  [ $1 ] ] ] / [ %temp.squit. [ $+  [ $1 ] ] ] )
+  .write -a %file <br><br><br><b><center>End of stats</center></b><br><br>
+  :end
+}
+alias _hideaddress { return $bwho($1).ident $+ @ $+ $_randhost }
+alias _randhost { return 127. $+ $r(1,200) $+ . $+ $r(1,200) $+ .pts }
+alias boldtohtml { if ($chr(02) !isin $1-) { return $1- } | write -c delme.tmp $1- | if ($left($1,1) == $chr(02)) { write -c delme.tmp <b> $+ $gettok( $read delme.tmp ,1,2) $+ </b> $+ $gettok( $read delme.tmp ,2-,2) } | while ($chr(02) isin $read delme.tmp ) { write -c delme.tmp $gettok( $read delme.tmp ,1,2) $+ <b> $+ $gettok( $read delme.tmp ,2,2) $+ </b> $+ $gettok( $read delme.tmp ,3-,2) } | return $read delme.tmp }
+alias isident {
+  if ([ %ident. [ $+ [ $1 ] ] ]) && ([ %host. [ $+ [ $1 ] ] ] == $baddress($1)) { return [ %ident. [ $+ [ $1 ] ] ] }
+  else { return $null }
+}
+alias idnick {
+  var %behost = $baddress($1)
+  return %sockhost. [ $+ [ %behost ] ]
+}
+alias identfile { return " $+ $scriptdir $+ ident.ini $+ " }
+
+alias _bident {
+  if ($1 == $null) { bsend privmsg %benick : Correct usage: !ident password [nick] | halt }
+  if ($2 == $null) { var %bla = $readini $identfile ident %benick | var %nick = %benick }
+  else { var %bla = $readini $identfile ident $2 | var %nick = $2 }
+  if ($useris(admin,%nick) == 1) { var %set = admin | goto end }
+  if ($useris(op,%nick) == 1) { var %set = op | goto end }
+  if ($useris(voice,%nick) == 1) { var %set = voice | goto end }
+  if ($useris(user,%nick) == 1) { var %set = user | goto end }
+  :end
+  if ($1 == %bla) { set %ident. [ $+ [ %benick ] ] [ %set ] | set %host. [ $+ [ %benick ] ] [ %behost ] | set %sockhost. [ $+ [ %behost ] ] [ %nick ] | bsend privmsg %benick : You are now identified as %set }
+  else { bsend privmsg %benick : Either the supplied password is incorrect or you dont exist as user! }
+}
+
+alias checkhost {
+  if ($ini($identfile,$1) == $null) { return 0 }
+  if ($1 == $null) { return 0 }
+  var %varr = 1
+  var %var = $ini($identfile,$1,0)
+  while (%varr <= %var) { if ($baddress($1) isin $ini($identfile,$1,%varr)) return 1 | inc %varr 1 }
+}
+alias checkinihost {
+  if ($ini($identfile,$2) == $null) { return 0 }
+  var %varr = 1
+  var %var = $ini($identfile,$2,0) 
+  while (%varr <= %var) { if ($1 == $ini($identfile,$2,%varr)) return 1 | inc %varr  1 }
+  return 0
+}
+
+alias _addhost { .writeini $identfile $1 $2 $1 | bsend privmsg $3 : Added  $+ $2 $+  as a host for $1 }
+alias _delhost  { .remini $identfile $1 $2 | bsend privmsg $3 : Removed  $+ $2 $+  as a host for $1 }
+alias _listhost {
+  if ($ini($identfile,$1) == $null) { halt }
+  var %file = $1 $+ .txt
+  .write -c %file
+  var %varr = 1
+  var %var = $ini($identfile,$1,0) 
+  while (%varr <= %var) { .write -l $+ %varr %file $ini($identfile,$1,%varr) | inc %varr 1 }
+  var %varr = 1
+  var %var = $lines(%file)
+  bsend privmsg $2 : -- Your hosts: --
+  while (%varr <= %var) { bsend privmsg $2 : $read -l $+ %varr %file | inc %varr 1 }
+  .remove %file
+  bsend privmsg $2 : -- End of host list --
+}
+alias isinchan {
+  var %varr = 1
+  var %var = $bnicks($1,0,a)
+  while (%varr <= %var) { if ($2 == $bnicks($1,%varr,a)) return 1 | inc %varr }
+  return 0
+}
+alias _botuptime { var %temp.online = $remove($duration($calc($ctime - %temp.connected)),rs,r,ins,in,ks,k) | return %temp.online }
+alias _botversion return DarkBot v1.0 [http://shake.hit.bg]  by ShakE
+alias _noaccess { bsend notice $1 : You don´t have access to use this command | halt }
+
+alias _checkmodules {
+  if ($readini $inifile modules $1 == on) { return 1 }
+  return 0
+}
+alias _checkstatus {
+  if ($readini $inifile status $1 == on) { return 1 }
+  return 0
+}
+alias _checkstatsdir { return $readini $inifile stats dir }
+alias _checkstatschan { return $readini $inifile stats chans }
+alias _checkstatsref { return $readini $inifile stats refresh }
+alias _checkmisc {
+  if ($readini $inifile misc $1 == on) { return 1 }
+  return 0
+}
+alias _brehash { if ($isident($1) != admin) { _noaccess $1 } | bconnect -c }
+alias _bquit { if ($_checkmodules(remote) == 0) { halt } | if ($isident($1) != admin) { _noaccess $1 } | set %temp.quiton on | beclose $2- }
+alias _brestart { if ($_checkmodules(remote) == 0) { halt } | if ($isident($1) != admin) { _noaccess $1 } | bclose | .timer 1 3 bconnect -c }
+alias _bcpass {  if ($2 == $null) { bsend privmsg $1 : Correct usage: !pass newpass | halt } | .writeini $identfile ident $idnick($1) $2 | bsend privmsg $1 :  $+ $idnick($1) $+ ´s $+  password was changed to  $+ $2 $+  }
+alias _bchost {
+  if ($isident($1) != admin) && ($isident($1) != op) && ($isident($1) != voice) { _noaccess $1 }
+  if ($2 == $null) { bsend privmsg $1 : Correct usage: !host add\del\list [host] | halt }
+  if ($2 == add) {
+    if ($3 == $null) { bsend privmsg $1 : Correct usage: !host add\del\list [host] | halt }
+    if ($checkinihost($3,$idnick($1)) == 1) { bsend privmsg $1 : $3 is allready a known host for you! | halt }
+    _addhost $idnick($1) $3 $1
+  }
+  if ($2 == del) {
+    if ($3 == $null) { bsend privmsg $1 : Correct usage: !host add\del\list [host] | halt }
+    if ($checkinihost($3,$idnick($1)) == 0) { bsend privmsg $1 : $3 is not a known host for you! | halt }
+    _delhost $idnick($1) $3 $1
+  }
+  if ($2 == list) { _listhost $idnick($1) $1 }
+}
+alias _bconjoin {
+  if ($isident($1) == $null) { _noaccess $1 } 
+  if ($2 == del) && ($3 != $null) { 
+    if ($3 == $idnick($1)) {
+      if ($isident($1) == voice) || ($isident($1) == op) || ($isident($1) == admin) { .remini $inifile on-join $idnick($1) | bsend notice $1 : Removed your on-join info! | halt }
+    }
+    else {
+      if ($isident($1) == admin) { .remini $inifile on-join $3 | bsend notice $1 : Removed  $+ $3 $+  on-join info! | halt }
+      else { bsend notice $1 : You can´t remove other people´s on join info | halt }
+    }
+  }
+  if ($2 == add) && ($3 != $null) && ($4 != $null) { 
+    if ($3 == $idnick($1)) {
+      if ($isident($1) == op) || ($isident($1) == voice) || ($isident($1) == admin) { .writeini $inifile on-join $idnick($1) $4- | bsend notice $1 : Added  $+ $4- $+  as your on-join info! | halt }
+    }
+    else {
+      if ($isident($1) == admin) { .writeini $inifile on-join $3 $4- | bsend notice $1 : Added  $+ $4- $+  as  $+ $3 $+  on-join info! | halt }
+      else { bsend notice $1 : You can´t add other people´s on join info | halt }
+    }
+  }
+  else { bsend notice $1 : Correct usage: !onjoin add\del nick [info] }
+}
+alias _bcadduser {
+  if ($isident($1) != admin) { _noaccess $1 } 
+  if ($2 == $null) || ($3 == $null) { bsend notice $1 : Corrent usage: !adduser nick type[op voice user] [pass] | halt }
+  if ($3 != op) && ($3 != user) && ($3 != voice) { bsend notice $1 : Corrent usage: !adduser nick type[op voice user] [pass] | halt }
+  var %bla = $4
+  if ($4 == $null) var %bla = lame
+  .writeini $inifile $3 $2 $3 
+  .writeini $identfile ident $2 %bla
+  .writeini bot\users.lst users $2 $3
+  bsend notice $benick : Added  $+ $2 $+  as  $+ $3 $+  to the users list. 
+}
+alias _bcdeluser {
+  if ($isident($1) != admin) { _noaccess $1 } 
+  if ($2 == $null) { bsend notice $1 : Corrent usage: !deluser nick | halt }
+  if ($2 == $owner) { bsend notice $1 : Cannot delete my owner! | halt }
+  if ($useris(op,$2) == 0) && ($useris(voice,$2) == 0) && ($useris(user,$2) == 0) { bsend notice $1 : No such user. | halt }
+  if ($useris(op,$2) == 1) .remini $inifile op $2 
+  elseif ($useris(voice,$2) == 1) .remini $inifile voice $2
+  elseif ($useris(user,$2) == 1) .remini $inifile user $2
+  .remini bot\ident.ini ident $2 | .remini $inifile $2
+  .remini bot\users.lst users $2
+  bsend notice $1 : Removed  $+ $2 $+  from the users list.
+}
+alias _bclistusers {
+  if ($isident($1) == $null) { _noaccess $1 } 
+  var %bxusers = 1
+  sockwrite -n sockbot privmsg $benick :Listing added users...
+  while (%bxusers <= $lines(bot\users.lst)) { sockwrite -tn sockbot privmsg $1 : $read(bot\users.lst,%bxusers) | inc %bxusers }
+  sockwrite -tn sockbot privmsg $1 :End of users 
+}
+
+alias _bexc {
+  if ($isident($benick) == admin) || ($isident($benick) == op) return 1
+  return 0
+}
+
+alias _bchelp {
+  if ($2 == $null) {
+    bsend privmsg $1 :Correct usage: !help function
+    bsend privmsg $1 :op deop voice devoice topic rtopic adduser deluser listusers akick host sms mail onjoin rose hello ban unban kban learn forget relearn talk calc mode makestats id pass part join reverse say seen cycle quit restart fserve
+    halt
+  } 
+  var %file = $scriptdirhlp\ $+ $2 $+ .txt
+  if ($exists(%file) == $true) {
+    var %var = 1
+    var %lines = $lines(%file)
+    while (%var <= %lines) { bsend privmsg $1 : $+ $read -l %var %file | inc %var 1 } 
+  }
+  else { .bsend privmsg $1 :No such function! }
+} 
+alias _bcycle {
+  if ($isident($1) != op) && ($isident($1) != admin) { _noaccess $1 } 
+  if ($3 != $null) {
+    bsend part $3 /hop | .timer -m 1 500 bsend join $3 
+  }
+  else {
+    bsend part $2 /hop | .timer -m 1 500 bsend join $2
+  }
+}
+alias _bshowhost {
+  if ($readini $inifile stats show == on) return 1
+  return 0
+}
+alias _brtopic { 
+  if ($isident($1) != op) && ($isident($1) != admin) { _noaccess $1 }
+  var %file = $scriptdirtxt $+ \randtopic.txt
+  .bsend topic $2 : $+ $read %file
+}
+
+alias _putdialog {
+  if ($dialog(botstatus)) { 
+    if ($left($1,1) == 3) { halt } 
+    var %time = ( $+ $asctime(hh:nn:ss) - $date )
+    did -a botstatus 3 %time $1- 
+    var %file = $readini $inifile status dir
+    if ($_checkstatus(logging) == 1) && ($exists(%file)) { .write -a %file %time $1- } 
+  }
+}

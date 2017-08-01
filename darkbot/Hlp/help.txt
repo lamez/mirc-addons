@@ -1,0 +1,3 @@
+sintax: !help [topic]
+if no topic is given the general help is displayed, else if the help 
+topic exist , it is displayed.

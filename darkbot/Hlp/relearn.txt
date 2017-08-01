@@ -1,0 +1,2 @@
+same as !learn , only it overwrites definition if it exists
+access: admin

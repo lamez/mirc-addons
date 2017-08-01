@@ -1,0 +1,6 @@
+sintax: !part [#channel],[#channel2],etc
+if no channel is specified the bot parts the actual channel ,
+thus to be executed in a pvt window , it needs the 2nd parameter.
+if [#channel] is specified the bot parts [#channel],[#channel2] 
+and so on :)
+access: op admin

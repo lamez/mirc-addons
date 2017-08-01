@@ -1,0 +1,3 @@
+sintax: !mail <your@email.ss> <mail@to.to> <"subject in quotes"> <mail message ...>
+example: !mail root@chapa-da.net bill@microsoft.com "hi there" how are you ?
+access: op admin

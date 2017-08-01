@@ -1,0 +1,60 @@
+;Don't EDIT ThiS YoU Fucking LameR
+;The ScRipT Will NoT WorK Correctly
+;AnD I Will FinD YoU,AnD TheN..."Dupe da ti e qko!"
+
+alias -l getdccport { :barf | var %§barf = $r(1024,9999) | if ($portfree(%§barf)) { return %§barf } | goto barf }
+alias isip_ { %temp.v = 1 |  while (%temp.v <= 4) { if ($gettok($1,%temp.v,46) !isnum) return $false |  inc %temp.v } | return $true }
+#botdns off
+on *:dns: { set %botip $iaddress | .disable #botdns }
+#botdns end
+alias bip { return %botip }
+alias dccsend {
+  var %dccport = $getdccport
+  bsend NOTICE $1 :DCC Send $nopath($2) ( $+ $bip $+ )
+  bsend PRIVMSG $1 :DCC SEND $nopath($2) $longip($bip) %dccport $file($2).size $+ 
+  var %sock = dcc $+ $r(1,9999) $+ $ctime
+  socklisten %sock %dccport
+  sockmark %sock $file($2).size $2 $1 0
+}
+
+alias dcc.send {
+  if ($prop == filename) return $gettok($sock($1).mark,2,32)
+  if ($prop == filesize) return $gettok($sock($1).mark,1,32)
+  if ($prop == nick) return $gettok($sock($1).mark,3,32)
+  if ($prop == progress) return $gettok($sock($1).mark,4,32)
+}
+
+on *:sockwrite:SEND*: {
+  if ($dcc.send($sockname).progress < $dcc.send($sockname).filesize) {  dsend $sockname }
+  ;else { echo @send file completed }  
+  ;echo @send $dcc.send($sockname).progress -> $int($calc($calc($dcc.send($sockname).progress * 100) / $dcc.send($sockname).filesize)) $+ %
+}
+
+on *:socklisten:dcc*: {
+  var %socket = SEND $+ $r(1,9999) $+ $ctime | sockaccept %socket | sockmark %socket $sock($sockname).mark 
+  dsend %socket | sockclose $sockname
+}
+
+alias dsend {
+  ;  bread $dcc.send($1).filename  $dcc.send($1).progress $iif($dcc.send($1).filesize < 4096,$dcc.send($1).filesize,4096) &temp
+  bread $dcc.send($1).filename  $dcc.send($1).progress 4096 &temp
+
+  sockwrite $1 &temp
+  sockmark $1 $dcc.send($1).filesize $dcc.send($1).filename $dcc.send($1).nick $calc($dcc.send($1).progress + 4096)
+}
+
+alias _dccsend {
+  if ($readini bot\config.ini dcc status != on) { halt }
+  if ($1 == $null) || ($2 == $null) { halt }
+  if ($findfile($scriptdirfiles\,$2,1) == $null) { bsend privmsg $1 : There´s no such file! | halt }
+  .dccsend $1 $scriptdirfiles\ $+ $2
+}
+
+alias _dcclist {
+  if ($readini $inifile dcc status != on) { halt }
+  bsend privmsg $1 : --File Server List:--
+  var %var = 1
+  var %varr = $findfile($scriptdirfiles,*.*,0)
+  while (%var <= %varr) { bsend privmsg $1 : $nopath($findfile($scriptdirfiles,*.*,%var)) | inc %var 1 }
+  bsend privmsg $1 : --End of file listing--
+}  

@@ -1,0 +1,3 @@
+sintax: !ban [#channel] <nick|host>
+example: !ban #pt-scripters *!*@*.aol.com
+access: op admin

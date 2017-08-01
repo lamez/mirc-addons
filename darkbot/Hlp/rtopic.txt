@@ -1,0 +1,5 @@
+sintax: !rtopic [#channel]
+Inserts a random topic on #channel or $active reading a
+random line from txt\randtopic.txt
+example: !rtopic #pt-scripters
+access: op admin

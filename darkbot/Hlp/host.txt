@@ -1,0 +1,3 @@
+sintax: !host add|del|list [host]
+example: !host add *!fobias@*.spoofed.ms
+access: voice op admin

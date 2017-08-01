@@ -1,0 +1,4 @@
+sintax: !reverse <word(s)>
+reverse's a word and says it
+example !reverse bot , returns "tob"
+access: user voice op admin

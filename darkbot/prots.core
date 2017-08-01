@@ -1,0 +1,415 @@
+;Don't EDIT ThiS YoU Fucking LameR
+;The ScRipT Will NoT WorK Correctly
+;AnD I Will FinD YoU,AnD TheN..."Dupe da ti e qko!"
+
+dialog botprots {
+  title "Protections"
+  size -1 -1 300 210
+  button "Ok", 1, 95 180 50 25, ok default
+  button "Cancel", 2, 155 180 50 25, cancel
+  tab "Flood", 3, 5 5 290 165
+  tab "Swear", 4
+  tab "Others", 5
+  tab "Personal", 6
+  tab "Mass", 100
+  combo 7, 20 40 100 200, drop tab 3
+  combo 8, 20 40 100 200, drop tab 4
+
+  radio "On", 12, 150 45 50 15, right group tab 3
+  radio "Off", 13, 200 45 50 15, right tab 3 
+  edit "", 14, 20 80 50 20, tab 3
+  text "lines in", 15, 80 85 40 20, tab 3
+  edit "", 16, 130 80 50 20, tab 3
+  text "seconds", 17, 190 85 40 20, tab 3
+  text "Kick message:", 18, 20 115 80 20, tab 3
+  edit "", 19, 100 112 180 20, autohs tab 3 
+  radio "Kick", 20, 50 140 40 15, right group tab 3
+  radio "K/Ban", 21, 110 140 50 15, right tab 3
+
+  check "Underline Auto-kick", 22, 20 45 115 15, tab 5
+  radio "Kick", 23, 145 45 40 15, right group tab 5
+  radio "K/Ban", 24, 195 45 60 15, right tab 5
+  check "Bold Auto-kick", 25, 20 75 115 15, tab 5
+  radio "Kick", 26, 145 75 40 15, right group tab 5
+  radio "K/Ban", 27, 195 75 60 15, right tab 5
+  check "Color Auto-kick", 28, 20 105 115 15, tab 5
+  radio "Kick", 29, 145 105 40 15, right group tab 5
+  radio "K/Ban", 30, 195 105 60 15, right tab 5
+
+  edit "", 31, 20 75 80 20, tab 4
+  button "Add", 32, 110 75 50 20, tab 4
+  button "Remove", 33, 170 75 50 20, tab 4
+  text "Kick message:", 34, 20 110 80 15, tab 4
+  edit "", 35, 105 107 170 20, autohs tab 4
+  radio "Kick", 36, 40 140 40 20, right group tab 4
+  radio "K/Ban", 37, 110 140 60 20, right tab 4
+  radio "On", 38, 150 45 50 15, right group tab 4
+  radio "Off", 39, 200 45 50 15, right tab 4 
+
+  check "ctcp", 40, 20 45 50 15, tab 6
+  edit "", 41, 75 43 30 20, tab 6
+  text "in", 42, 110 45 10 15, tab 6
+  edit "", 43, 125 43 30 20, tab 6
+  text "secs.   Ignore:", 44, 160 45 70 15, tab 6
+  edit "", 60, 230 43 30 20, tab 6 
+  text "secs", 61, 262 45 25 15, tab 6
+
+  check "text", 45, 20 75 50 15, tab 6
+  edit "", 46, 75 73 30 20, tab 6
+  text "in", 47, 110 75 10 15, tab 6
+  edit "", 48, 125 73 30 20, tab 6
+  text "secs.   Ignore:", 49, 160 75 100 15, tab 6
+  edit "", 62, 230 73 30 20, tab 6 
+  text "secs", 63, 262 75 25 15, tab 6
+
+
+  check "notice", 50, 20 105 50 15, tab 6
+  edit "", 51, 75 103 30 20, tab 6
+  text "in", 52, 110 105 10 15, tab 6
+  edit "", 53, 125 103 30 20, tab 6
+  text "secs.   Ignore:", 54, 160 105 100 15, tab 6
+  edit "", 64, 230 103 30 20, tab 6 
+  text "secs", 65, 262 105 25 15, tab 6
+
+
+  check "Invite", 55, 20 135 50 15, tab 6
+  edit "", 56, 75 133 30 20, tab 6
+  text "in", 57, 110 135 10 15, tab 6
+  edit "", 58, 125 133 30 20, tab 6
+  text "secs.   Ignore:", 59, 160 135 100 15, tab 6
+  edit "", 66, 230 133 30 20, tab 6 
+  text "secs", 67, 262 135 25 15, tab 6
+
+  check "join", 70, 20 45 50 15, tab 100
+  edit "", 71, 75 43 30 20, tab 100
+  text "in", 72, 110 45 10 15, tab 100
+  edit "", 73, 125 43 30 20, tab 100
+  text "secs.", 74, 160 45 30 15, tab 100
+  radio "Kick", 75, 195 43 40 20, right group tab 100
+  radio "K/Ban", 76, 240 43 50 20, right tab 100
+
+  check "kick", 77, 20 75 50 15, tab 100
+  edit "", 78, 75 73 30 20, tab 100
+  text "in", 79, 110 75 10 15, tab 100
+  edit "", 80, 125 73 30 20, tab 100
+  text "secs.", 81, 160 75 30 15, tab 100
+  radio "Kick", 82, 195 73 40 20, right group tab 100
+  radio "K/Ban", 83, 240 73 50 20, right tab 100
+
+  check "ban", 84, 20 105 50 15, tab 100
+  edit "", 85, 75 103 30 20, tab 100
+  text "in", 86, 110 105 10 15, tab 100
+  edit "", 87, 125 103 30 20, tab 100
+  text "secs.", 88, 160 105 30 15, tab 100
+  radio "Kick", 89, 195 103 40 20, right group tab 100
+  radio "K/Ban", 90, 240 103 50 20, right tab 100
+
+  check "deop", 91, 20 135 50 15, tab 100
+  edit "", 92, 75 133 30 20, tab 100
+  text "in", 93, 110 135 10 15, tab 100
+  edit "", 94, 125 133 30 20, tab 100
+  text "secs.", 95, 160 135 30 15, tab 100
+  radio "Kick", 96, 195 133 40 20, right group tab 100
+  radio "K/Ban", 97, 240 133 50 20, right tab 100
+
+}
+
+alias botprots dialog -mn botprots botprots
+alias protfile { return " $+ $scriptdir $+ prots.ini $+ " }
+on *:dialog:botprots:init:*: {
+  did -a botprots 7 Notice
+  did -a botprots 7 Action
+  did -ca botprots 7 Text
+  .givetextflood
+  if ($readini $protfile underline status == on) { did -c botprots 22 }
+  if ($readini $protfile underline castigo == kick) { did -c botprots 23 }
+  else { did -c botprots 24 }
+  if ($readini $protfile bold status == on) { did -c botprots 25 }
+  if ($readini $protfile bold castigo == kick) { did -c botprots 26 }
+  else { did -c botprots 27 }
+  if ($readini $protfile colors status == on) { did -c botprots 28 }
+  if ($readini $protfile colors castigo == kick) { did -c botprots 29 }
+  else { did -c botprots 30 }
+  if ($readini $protfile swear words != $null) { .dowords $readini $protfile swear words }
+  if ($readini $protfile swear status == on) { did -c botprots 38 }
+  else { did -c botprots 39 }
+  if ($readini $protfile swear castigo == kick) { did -c botprots 36 }
+  else { did -c botprots 37 }
+  if ($readini $protfile swear km != $null) { did -ra botprots 35 $readini $protfile swear km }
+
+  if ($checkprot(ctcp) == 1) { did -c botprots 40 }
+  if ($checklines(ctcp)) { did -ra botprots 41 $checklines(ctcp) }
+  if ($checktime(ctcp)) { did -ra botprots 43 $checktime(ctcp) }
+  if ($readini $protfile ctcp ignore != $null) { did -ra botprots 60 $readini $protfile ctcp ignore }
+  if ($checkprot(text) == 1) { did -c botprots 45 }
+  if ($checklines(text)) { did -ra botprots 46 $checklines(text) }
+  if ($checktime(text)) { did -ra botprots 48 $checktime(text) }
+  if ($readini $protfile text ignore != $null) { did -ra botprots 62 $readini $protfile text ignore }
+  if ($checkprot(notice) == 1) { did -c botprots 50 }
+  if ($checklines(notice)) { did -ra botprots 51 $checklines(notice) }
+  if ($checktime(notice)) { did -ra botprots 53 $checktime(notice) }
+  if ($readini $protfile notice ignore != $null) { did -ra botprots 64 $readini $protfile notice ignore }
+  if ($checkprot(invite) == 1) { did -c botprots 55 }
+  if ($checklines(invite)) { did -ra botprots 56 $checklines(invite) }
+  if ($checktime(invite)) { did -ra botprots 58 $checktime(invite) }
+  if ($readini $protfile invite ignore != $null) { did -ra botprots 66 $readini $protfile invite ignore }
+
+  if ($checkprot(join) == 1) { did -c botprots 70 }
+  if ($checklines(join)) { did -ra botprots 71 $checklines(join) }
+  if ($checktime(join)) { did -ra botprots 73 $checktime(join) }
+  if ($checkcastigo(join) == kick) { did -c botprots 75 }
+  else { did -c botprots 76 }
+  if ($checkprot(kick) == 1) { did -c botprots 77 }
+  if ($checklines(kick)) { did -ra botprots 78 $checklines(kick) }
+  if ($checktime(kick)) { did -ra botprots 80 $checktime(kick) }
+  if ($checkcastigo(kick) == kick) { did -c botprots 82 }
+  else { did -c botprots 83 }
+  if ($checkprot(ban) == 1) { did -c botprots 84 }
+  if ($checklines(ban)) { did -ra botprots 85 $checklines(ban) }
+  if ($checktime(ban)) { did -ra botprots 87 $checktime(ban) }
+  if ($checkcastigo(ban) == kick) { did -c botprots 89 }
+  else { did -c botprots 90 }
+  if ($checkprot(deop) == 1) { did -c botprots 91 }
+  if ($checklines(deop)) { did -ra botprots 92 $checklines(deop) }
+  if ($checktime(deop)) { did -ra botprots 94 $checktime(deop) }
+  if ($checkcastigo(deop) == kick) { did -c botprots 96 }
+  else { did -c botprots 97 }
+
+}
+
+alias dowords {
+  var %var = 1
+  var %varr = $0
+  while (%var < %varr) { .did -a botprots 8 [ $ $+ [ %var ] ] | inc %var 1 }
+  did -ca botprots 8  [ $ $+ [ %varr ] ]
+}
+
+alias givetextflood {
+  set %temp.prot.section text
+  did -u botprots 20,21,12,13
+  if ($readini $protfile text-flood status == on) { did -c botprots 12 }
+  else { did -c botprots 13 }
+  if ($readini $protfile text-flood lines != $null) { did -ra botprots 14 $readini $protfile text-flood lines }
+  if ($readini $protfile text-flood time != $null) { did -ra botprots 16 $readini $protfile text-flood time }
+  if ($readini $protfile text-flood km != $null) { did -ra botprots 19 $readini $protfile text-flood km }
+  if ($readini $protfile text-flood castigo == kick) { did -c botprots 20 }
+  else { did -c botprots 21 }
+}
+alias giveactionflood {
+  set %temp.prot.section action
+  did -u botprots 20,21,12,13
+  if ($readini $protfile action-flood status == on) { did -c botprots 12 }
+  else { did -c botprots 13 }
+  if ($readini $protfile action-flood lines != $null) { did -ra botprots 14 $readini $protfile action-flood lines }
+  if ($readini $protfile action-flood time != $null) { did -ra botprots 16 $readini $protfile action-flood time }
+  if ($readini $protfile action-flood km != $null) { did -ra botprots 19 $readini $protfile action-flood km }
+  if ($readini $protfile action-flood castigo == kick) { did -c botprots 20 }
+  else { did -c botprots 21 }
+}
+alias givenoticeflood { 
+  set %temp.prot.section notice
+  did -u botprots 20,21,12,13
+  if ($readini $protfile notice-flood status == on) { did -c botprots 12 }
+  else { did -c botprots 13 }
+  if ($readini $protfile notice-flood lines != $null) { did -ra botprots 14 $readini $protfile notice-flood lines }
+  if ($readini $protfile notice-flood time != $null) { did -ra botprots 16 $readini $protfile notice-flood time }
+  if ($readini $protfile notice-flood km != $null) { did -ra botprots 19 $readini $protfile notice-flood km }
+  if ($readini $protfile notice-flood castigo == kick) { did -c botprots 20 }
+  else { did -c botprots 21 }
+}
+
+
+on *:dialog:botprots:sclick:1: {
+  if (%temp.prot.section == text) {
+    if ($did(12).state) { .writeini $protfile text-flood status on }
+    else { .writeini $protfile text-flood status off }
+    if ($did(14)) { .writeini $protfile text-flood lines $did(14) }
+    if ($did(16)) { .writeini $protfile text-flood time $did(16) }
+    if ($did(19)) { .writeini $protfile text-flood km $did(19) }
+    if ($did(20).state) { .writeini $protfile text-flood castigo kick }
+    else { .writeini $protfile text-flood castigo ban }
+  }
+  if (%temp.prot.section == action) {
+    if ($did(12).state) { .writeini $protfile action-flood status on }
+    else { .writeini $protfile action-flood status off }
+    if ($did(14)) { .writeini $protfile action-flood lines $did(14) }
+    if ($did(16)) { .writeini $protfile action-flood time $did(16) }
+    if ($did(19)) { .writeini $protfile action-flood km $did(19) }
+    if ($did(20).state) { .writeini $protfile action-flood castigo kick }
+    else { .writeini $protfile action-flood castigo ban }
+  }
+  if (%temp.prot.section == notice) {
+    if ($did(12).state) { .writeini $protfile notice-flood status on }
+    else { .writeini $protfile notice-flood status off }
+    if ($did(14)) { .writeini $protfile notice-flood lines $did(14) }
+    if ($did(16)) { .writeini $protfile notice-flood time $did(16) }
+    if ($did(19)) { .writeini $protfile notice-flood km $did(19) }
+    if ($did(20).state) { .writeini $protfile notice-flood castigo kick }
+    else { .writeini $protfile notice-flood castigo ban }
+  }
+  if ($did(22).state) { .writeini $protfile underline status on }
+  else { .writeini $protfile underline status off }
+  if ($did(23).state) { .writeini $protfile underline castigo kick }
+  else { .writeini $protfile underline castigo ban }
+  if ($did(25).state) { .writeini $protfile bold status on }
+  else { .writeini $protfile bold status off }
+  if ($did(26).state) { .writeini $protfile bold castigo kick }
+  else { .writeini $protfile bold castigo ban }
+  if ($did(28).state) { .writeini $protfile colors status on }
+  else { .writeini $protfile colors status off }
+  if ($did(29).state) { .writeini $protfile colors castigo kick }
+  else { .writeini $protfile colors castigo ban }
+
+  if ($did(38).state) { .writeini $protfile swear status on }
+  else { .writeini $protfile swear status off }
+  if ($did(36).state) { .writeini $protfile swear castigo kick }
+  else { .writeini $protfile swear castigo ban }
+  if ($did(35)) { .writeini $protfile swear km $did(35) }
+  var %varr = $did(botprots,8).lines
+  var %var = 1
+  while (%var <= %varr) { var %words = %words $did(botprots,8,%var) | inc %var }
+  if (%words) { .writeini $protfile swear words %words }
+  if ($did(40).state) { .writeini $protfile ctcp status on }
+  else { .writeini $protfile ctcp status off }
+  if ($did(41)) { .writeini $protfile ctcp lines $did(41) }
+  if ($did(43)) { .writeini $protfile ctcp time $did(43) }
+  if ($did(60)) { .writeini $protfile ctcp ignore $did(60) }
+  if ($did(45).state) { .writeini $protfile text status on }
+  else { .writeini $protfile text status off }
+  if ($did(46)) { .writeini $protfile text lines $did(46) }
+  if ($did(48)) { .writeini $protfile text time $did(48) }
+  if ($did(62)) { .writeini $protfile text ignore $did(62) }
+  if ($did(50).state) { .writeini $protfile notice status on }
+  else { .writeini $protfile notice status off }
+  if ($did(51)) { .writeini $protfile notice lines $did(51) }
+  if ($did(53)) { .writeini $protfile notice time $did(53) }
+  if ($did(64)) { .writeini $protfile notice ignore $did(64) }
+  if ($did(55).state) { .writeini $protfile invite status on }
+  else { .writeini $protfile invite status off }
+  if ($did(56)) { .writeini $protfile invite lines $did(56) }
+  if ($did(58)) { .writeini $protfile invite time $did(58) }
+  if ($did(66)) { .writeini $protfile invite ignore $did(66) }
+
+  if ($did(70).state) { .writeini $protfile join status on }
+  else { .writeini $protfile join status off }
+  if ($did(71)) { .writeini $protfile join lines $did(71) }
+  if ($did(73)) { .writeini $protfile join time $did(73) }
+  if ($did(75).state) { .writeini $protfile join castigo kick }
+  else { .writeini $protfile join castigo ban }
+
+  if ($did(77).state) { .writeini $protfile kick status on }
+  else { .writeini $protfile kick status off }
+  if ($did(78)) { .writeini $protfile kick lines $did(78) }
+  if ($did(80)) { .writeini $protfile kick time $did(80) }
+  if ($did(82).state) { .writeini $protfile kick castigo kick }
+  else { .writeini $protfile kick castigo ban }
+
+  if ($did(84).state) { .writeini $protfile ban status on }
+  else { .writeini $protfile ban status off }
+  if ($did(85)) { .writeini $protfile ban lines $did(85) }
+  if ($did(87)) { .writeini $protfile ban time $did(87) }
+  if ($did(89).state) { .writeini $protfile ban castigo kick }
+  else { .writeini $protfile ban castigo ban }
+
+  if ($did(91).state) { .writeini $protfile deop status on }
+  else { .writeini $protfile deop status off }
+  if ($did(92)) { .writeini $protfile deop lines $did(92) }
+  if ($did(94)) { .writeini $protfile deop time $did(94) }
+  if ($did(96).state) { .writeini $protfile deop castigo kick }
+  else { .writeini $protfile deop castigo ban }
+
+}
+on *:dialog:botprots:sclick:32: {
+  if ($did(31) == $null) { halt }
+  did -ca botprots 8 $did(31)
+}
+on *:dialog:botprots:sclick:33: {
+  if ($did(8,$did(8).sel).text) { did -d botprots 8 1 }
+  else { halt }
+}
+
+on *:dialog:botprots:sclick:7: {
+  if (%temp.prot.section == text) {
+    if ($did(12).state) { .writeini $protfile text-flood status on }
+    else { .writeini $protfile text-flood status off }
+    if ($did(14)) { .writeini $protfile text-flood lines $did(14) }
+    if ($did(16)) { .writeini $protfile text-flood time $did(16) }
+    if ($did(19)) { .writeini $protfile text-flood km $did(19) }
+    if ($did(20).state) { .writeini $protfile text-flood castigo kick }
+    else { .writeini $protfile text-flood castigo ban }
+  }
+  if (%temp.prot.section == action) {
+    if ($did(12).state) { .writeini $protfile action-flood status on }
+    else { .writeini $protfile action-flood status off }
+    if ($did(14)) { .writeini $protfile action-flood lines $did(14) }
+    if ($did(16)) { .writeini $protfile action-flood time $did(16) }
+    if ($did(19)) { .writeini $protfile action-flood km $did(19) }
+    if ($did(20).state) { .writeini $protfile action-flood castigo kick }
+    else { .writeini $protfile action-flood castigo ban }
+  }
+  if (%temp.prot.section == notice) {
+    if ($did(12).state) { .writeini $protfile notice-flood status on }
+    else { .writeini $protfile notice-flood status off }
+    if ($did(14)) { .writeini $protfile notice-flood lines $did(14) }
+    if ($did(16)) { .writeini $protfile notice-flood time $did(16) }
+    if ($did(19)) { .writeini $protfile notice-flood km $did(19) }
+    if ($did(20).state) { .writeini $protfile notice-flood castigo kick }
+    else { .writeini $protfile notice-flood castigo ban }
+  }
+  if ($did(botprots,7) == Text)  .givetextflood 
+  if ($did(botprots,7) == Notice) .givenoticeflood
+  if ($did(botprots,7) == Action) .giveactionflood
+}
+
+
+alias checkprot {
+  if ($readini $protfile $1 status == on) { return 1 }
+  return 0
+}
+alias checkkm {
+  return $readini $protfile $1 km
+}
+alias checkcastigo {
+  if ($readini $protfile $1 castigo == kick) { return kick }
+  else return ban
+}
+alias checkignore {
+  return $readini $protfile $1 ignore
+}
+alias returnwords {
+  var %words = $readini $protfile swear words
+  return %words
+}
+alias checklines {
+  return $readini $protfile $1 lines 
+}
+alias checktime {
+  return $readini $protfile $1 time
+}
+alias _hasbold {
+  if ($1 == $null) { return error }
+  if ($chr(2) isin $1-) { return $count($1-,$chr(2)) }
+  else { return 0 }
+}
+
+alias _hasunder { 
+  if ($1 == $null) { return error }
+  if ($chr(31) isin $1-) { return $count($1-,$chr(31)) }
+  else { return 0 }
+}
+
+alias _hascolor { 
+  if ($1 == $null) { return error }
+  if ($chr(3) isin $1-) { return $count($1-,$chr(3)) }
+  else { return 0 }
+}
+
+alias checkwords {
+  var %text = $1-
+  var %word = $returnwords
+  tokenize 32 %word
+  var %varr = 1
+  var %var = $0
+  while (%varr <= %var) { var %check = [ $ $+ [ %varr ] ] | if (%check isin %text) return 1 | inc %varr 1 }
+  return 0
+}

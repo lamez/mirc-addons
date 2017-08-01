@@ -1,0 +1,3 @@
+sintax: !topic [#channel] <new-topic>
+example: !topic #pt-scripters http://ptscripters.org
+access: op admin

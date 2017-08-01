@@ -1,0 +1,3 @@
+sintax: !akick add|del <nick|host> [akick message]
+example: !akick add *!*@*.aol.com We dont like you!
+access: admin

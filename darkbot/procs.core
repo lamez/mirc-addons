@@ -1,0 +1,371 @@
+;Don't EDIT ThiS YoU Fucking LameR
+;The ScRipT Will NoT WorK Correctly
+;AnD I Will FinD YoU,AnD TheN..."Dupe da ti e qko!"
+
+on *:sockread:sockbot: {
+  sockread %sockbot.buffer
+  .bupdate
+  if (%sock.spy == on) {
+    if (%sockbot.buffer !== $null) {
+      if ($sock(admin.*).name !== $null) { /sockwrite -tn admin.* Spy: %sockbot.buffer }
+    }
+  }
+  if ($gettok(%sockbot.buffer,4,32) == :VERSION) { if ($_checkmisc(ctcps) == 1) { halt } | bsend notice $btarget :VERSION $_botversion $+  }
+  elseif (($gettok(%sockbot.buffer,4,32) == :PING) && ($bevent == PRIVMSG)) { if ($_checkmisc(ctcps) == 1) { halt } | bsend notice $btarget :PING $gettok(%sockbot.buffer,5,32) }
+  if ($gettok(%sockbot.buffer,1,32) == PING) { bsend PONG : $+ $gettok(%sockbot.buffer,2,58) }
+  if ($dialog(botstatus)) { _putdialog $bevent %sockbot.buffer }
+  if ($bevent == MODE) {
+    if ($bmode == -o) { 
+      inc %temp.sdeop. [ $+ [ $btarget ] ] 1
+      if ($bmodenick == $bbnick) { if ($_checkmisc(deop) != 1) { halt } | bsend privmsg cs :op $btarget $bbnick | bsend privmsg cs :op $btarget - $+ $benick | bsend notice $btarget : Don´t deop me plz! }
+      if ($checkprot(deop) == 1) && ($chr(35) isin $btarget) {
+        if ($_bexc($benick) == 1) goto cla
+        if ([ %temp.Deop. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] != $null) { .inc %temp.Deop. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | if ([ %temp.Deop. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $checklines(deop)) { goto c } | .timer 1 $checktime(deop) /unset %temp.Deop. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $target ] ] ] | goto cla }  
+        if ([ %temp.Deop. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $null) { .set %temp.Deop. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | .timer 1 $checktime(deop) /unset %temp.Deop. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] | goto cla }
+        :c
+        if ($checkcastigo(deop) == ban)  { .bsend mode $btarget +b $baddress($benick) }
+        bsend kick $btarget $benick : Mass deOp detected... Out we go!
+      }
+      :cla
+    } 
+    if ($bmode == +b) { 
+      inc %temp.sban. [ $+ [ $btarget ] ] 1
+      if ($bmodenick iswm $bbaddress($bbnick)) { if ($_checkmisc(ban) != 1) { goto gl } | bsend mode $btarget -b $bmodenick | bsend mode $btarget -o $benick | bsend notice $btarget : Don´t ban me plz! } 
+      :gl
+      if ($checkprot(ban) == 1) && ($chr(35) isin $btarget) {
+        if ($_bexc($benick) == 1) goto bli
+        if ([ %temp.Ban. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] != $null) { .inc %temp.Ban. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | if ([ %temp.Ban. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $checklines(ban)) { goto a } | .timer 1 $checktime(ban) /unset %temp.Ban. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $target ] ] ] | goto bli }  
+        if ([ %temp.Ban. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $null) { .set %temp.Ban. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | .timer 1 $checktime(ban) /unset %temp.Ban. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] | goto bli }
+        :a
+        if ($checkcastigo(ban) == ban)  { .bsend mode $btarget +b $baddress($benick) }
+        bsend kick $btarget $benick : Mass ban detected... Out we go!
+      }
+      :bli
+    }
+    if ($bmode == +o) { inc %temp.sop. [ $+ [ $btarget ] ] 1 }
+    if ($bmode == +v) { inc %temp.svc. [ $+ [ $btarget ] ] 1 }
+    if ($bmode == -v) { inc %temp.sdevc. [ $+ [ $btarget ] ] 1 }
+  }   
+  if ($bevent == KICK) {
+    inc %temp.skick. [ $+ [ $btarget ] ] 1
+    if ($bknick == $bbnick) { .timer 1 2 bsend join $btarget } 
+    if ($checkprot(kick) == 1) && ($chr(35) isin $btarget) {
+      if ($_bexc($benick) == 1) goto ble
+      if ([ %temp.Kick. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] != $null) { .inc %temp.Kick. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | if ([ %temp.Kick. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $checklines(kick)) { goto u } | .timer 1 $checktime(kick) /unset %temp.Kick. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $target ] ] ] | goto ble }  
+      if ([ %temp.Kick. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $null) { .set %temp.Kick. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | .timer 1 $checktime(kick) /unset %temp.Kick. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] | goto ble }
+      :u
+      if ($checkcastigo(kick) == ban)  { .bsend mode $btarget +b $baddress($benick) }
+      bsend kick $btarget $benick : Mass kick detected... Out we go!
+    }
+    :ble
+  }
+  if ($bevent == NOTICE) {
+    if ($benick == NS) && ($_checkmisc(nickserv) == 0) && (owned by someone else isin $btext) { bsend privmsg ns :identify $bnickpass }
+    if ($checkprot(notice-flood) == 1) && ($chr(35) isin $btarget) {
+      if ($_bexc($benick) == 1) goto blaa
+      if ([ %temp.Notice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] != $null) { .inc %temp.Notice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | if ([ %temp.Notice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $checklines(notice-flood)) { goto endd } | .timer 1 $checktime(notice-flood) /unset %temp.Notice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $target ] ] ] | goto blaa }  
+      if ([ %temp.Notice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $null) { .set %temp.Notice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | .timer 1 $checktime(notice-flood) /unset %temp.Notice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] | goto blaa }
+      :endd
+      if ($checkcastigo(notice-flood) == ban)  { .bsend mode $btarget +b $baddress($benick) }
+      bsend kick $btarget $benick : $checkkm(notice-flood)
+    }
+    if ($checkprot(notice) == 1) && ($chr(35) !isin $btarget) {
+      if ([ %temp.nNotice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] != $null) { .inc %temp.nNotice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | if ([ %temp.nNotice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $checklines(notice)) { goto e } | .timer 1 $checktime(notice) /unset %temp.nNotice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $target ] ] ] | goto blaa }  
+      if ([ %temp.nNotice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $null) { .set %temp.nNotice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | .timer 1 $checktime(notice) /unset %temp.nNotice. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] | goto blaa }
+      :e
+      bsend notice $benick : You are now being ignored for flooding!
+      bsend ignore -nu $+ $checkignore(notice) $baddress($benick)
+    }
+    :blaa
+  }
+  if ($bevent == INVITE) { 
+    if ($checkprot(invite) == 1) && ($chr(35) !isin $btarget) {
+      if ($_bexc($benick) == 1) goto blo
+      if ([ %temp.nInvite. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] != $null) { .inc %temp.nInvite. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | if ([ %temp.nInvite. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $checklines(invite)) { goto i } | .timer 1 $checktime(invite) /unset %temp.nInvite. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $target ] ] ] | goto blo }  
+      if ([ %temp.nInvite. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $null) { .set %temp.nInvite. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | .timer 1 $checktime(invite) /unset %temp.nInvite. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] | goto blo }
+      :i
+      bsend notice $benick : You are now being ignored for flooding!
+      bsend ignore -iu $+ $checkignore(invite) $baddress($benick)
+    }
+    :blo
+  }
+  if ($bevent == PRIVMSG) {
+    tokenize 32 $btext
+    if ($1 == $chr(001) $+ ACTION) { 
+      if ($checkprot(action-flood) == 1) && ($chr(35) isin $btarget) {
+        if ($_bexc($benick) == 1) goto bla
+        if ([ %temp.Action. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] != $null) { .inc %temp.Action. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | if ([ %temp.Action. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $checklines(action-flood)) { goto enddd } | .timer 1 $checktime(action-flood) /unset %temp.Action. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $target ] ] ] | goto bla }  
+        if ([ %temp.Action. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $null) { .set %temp.Action. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | .timer 1 $checktime(action-flood) /unset %temp.Action. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] | goto bla }
+        :enddd
+        if ($checkcastigo(action-flood) == ban)  { .bsend mode $btarget +b $baddress($benick) }
+        bsend kick $btarget $benick : $checkkm(action-flood)
+      }
+    }
+    :bla
+    if ($checkprot(swear) == 1) && ($chr(35) isin $btarget) {
+      if ($_bexc($benick) == 1) goto exc
+      if ($checkwords($1-) == 1) {
+        if ($checkcastigo(swear) == ban) { bsend mode $btarget +b $baddress($benick) }
+        bsend kick $btarget $benick : $checkkm(swear)
+      }
+    }
+    if ($checkprot(text-flood) == 1) && ($chr(35) isin $btarget) {
+      if ($_bexc($benick) == 1) goto exc
+      if ([ %temp.Text. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] != $null) { .inc %temp.Text. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | if ([ %temp.Text. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $checklines(text-flood)) { goto end } | .timer 1 $checktime(text-flood) /unset %temp.Text. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $target ] ] ] | goto homemaranha }  
+      if ([ %temp.Text. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $null) { .set %temp.Text. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | .timer 1 $checktime(text-flood) /unset %temp.Text. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] | goto homemaranha }
+      :end
+      if ($checkcastigo(text-flood) == ban)  { .bsend mode $btarget +b $baddress($benick) }
+      bsend kick $btarget $benick : $checkkm(text-flood)
+    }
+    if ($checkprot(text) == 1) && ($chr(35) !isin $btarget) {
+      if ([ %temp.nText. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] != $null) { .inc %temp.nText. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | if ([ %temp.nText. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $checklines(text)) { goto ee } | .timer 1 $checktime(text) /unset %temp.nText. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $target ] ] ] | goto homemaranha }  
+      if ([ %temp.nText. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] ] == $null) { .set %temp.nText. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] 1 | .timer 1 $checktime(text) /unset %temp.nText. [ $+ [ [ $baddress($benick) ] $+ . $+ [ $btarget ] ] ] | goto homemaranha }
+      :ee
+      bsend notice $benick : You are now being ignored for flooding!
+      bsend ignore -ptu $+ $checkignore(text) $baddress($benick)
+    }
+
+    :homemaranha
+    if ($_bexc($benick) == 1) goto exc
+    if ($checkprot(underline) == 1) && ($_hasunder($1-) != 0) && ($chr(35) isin $btarget) {
+      if ($checkcastigo(underline) == ban) { bsend mode $btarget +b $baddress($benick) }
+      bsend kick $btarget $benick : No underline codes allowed in $btarget (  $+ $_hasunder($1-) $+  code(s) )
+    }
+    if ($checkprot(bold) == 1) && ($_hasbold($1-) != 0) && ($chr(35) isin $btarget) {
+      if ($checkcastigo(bold) == ban) { bsend mode $btarget +b $baddress($benick) }
+      bsend kick $btarget $benick : No bold codes allowed in $btarget ( $_hasbold($1-) code(s) )
+    }
+    if ($checkprot(colors) == 1) && ($_hascolor($1-) != 0) && ($chr(35) isin $btarget) {
+      if ($checkcastigo(colors) == ban) { bsend mode $btarget +b $baddress($benick) }
+      bsend kick $btarget $benick : No color codes allowed in $btarget ( $_hascolor($1-) code(s) )
+    }
+    :exc
+    if ($1 == !time) { bsend privmsg $btarget : Current time: $asctime(hh:nn:ss) }
+    if ($1 == id) { if ($isident($benick)) { bsend privmsg $benick : You are allready identified as $idnick($benick) - $isident($benick) | halt } | set %benick $benick | set %behost $baddress($benick) | _bident $2- }
+    if ($1 == !date) { bsend privmsg $btarget : Current date: $date }
+    if ($1 == !fserve) { if ($_checkmodules(dcc) != 1) { halt } | dccchat.fserve $benick }
+    if ($1 == !calc) { 
+      if $isident($benick) == $null) { _noaccess $benick }
+      if ($calc($replace($2-,x,*,:,/))) {  bsend privmsg $btarget : $+ result is $calc($replace($2-,x,*,:,/)) } 
+      else { bsend privmsg $btarget : $+ !calc ... invalid sintax ( $+ $2- $+ ) }
+    }
+    if ($1 == !seen) { 
+      if ($_checkmodules(seen) != 1) { halt }
+      bsend names $btarget
+      if ($2 == $null) { bsend privmsg $btarget : $+  $+ $benick $+ : not enough parameters ... }
+      elseif ($isinchan($btarget,$2) == 1) { bsend privmsg $btarget : $+ $2 is at $btarget right now ...  | return }
+      elseif ($readini $seenfile seen $2 != $null) { 
+        bsend privmsg $btarget : $+  $+ $benick $+ : i last saw $2 on $readini $seenfile seen $2
+      }
+      else { bsend privmsg $btarget : $+  $+ $benick $+ : i don't remember that nick ... }
+    }
+    elseif ($1 == !reverse) { if $isident($benick) == $null) { _noaccess $benick } | bsend privmsg $btarget : $+ $reverse($2-) ... }
+    elseif ($1 == !rose) {
+      if $isident($benick) == $null) { _noaccess $benick }
+      if ($2 == $null) { bsend notice $benick :Correct usage: !rose nick | halt }
+      bsend privmsg $2 : $benick sends you a nice rose -------)@
+    }
+    elseif ($1 == !hello) {
+      if $isident($benick) == $null) { _noaccess $benick }
+      if ($2 == $null) { bsend notice $benick :Correct usage: !hello nick | halt }
+      bsend privmsg $2 : $benick says hello!
+    }
+    elseif ($1 == !learn) { 
+      if ($isident($benick) != admin) { _noaccess $benick }
+      if ($readini $inifile entries $2 == $null) { writeini $inifile entries $2 $3-  | bsend notice $benick : $+ added " $+ $2 $+ " entry }
+      else { bsend notice $btarget :i already have it on my database , try !relearn ... }
+    }
+    elseif ($1 == !forget) { 
+      if ($isident($benick) != admin) { _noaccess $benick }
+      if ($2 == $null) { bsend privmsg $btarget :not enough parameters , sintax is !forget <word>  ... }
+      else {
+        if ($readini $inifile entries $2 == $null) { bsend privmsg $btarget :i can't find such entrie in my database }
+        else { remini $inifile entries $2 | bsend privmsg $btarget :entrie was erased ... }
+      }
+    }
+
+
+    elseif ($1 == !relearn) { 
+      if ($isident($benick) != admin) { _noaccess $benick }
+      if ($readini $inifile entries $2 == $null) { bsend notice $benick : i don't remember that word ... try !learn  }
+      else { writeini $inifile entries $2 $3-  | bsend notice $benick : $+ replaced " $+ $2 $+ " entry }
+    }
+    elseif ($1 == ??) {
+      if ($readini $inifile entries $2 == $null)  { bsend privmsg $btarget : $+  $+ $benick $+ : i don't know what  $+ $2 $+  means ... }
+      else { bsend privmsg $btarget : $+  $+ $benick $+ : $readini $inifile entries $2 }
+    }
+    elseif ($1 == !help) { _bchelp $benick $2 }
+    elseif ($1 == !sms) {
+      if ($_checkmodules(sms) != 1) { halt }
+      if ($isident($benick) != admin) && ($isident($benick) != op) { _noaccess $benick }
+      if ($2 == $null) || ($3 == $null) { bsend privmsg $btarget : Correct usage: !sms number message | halt }
+      if ($len($2) != 9) { bsend privmsg $btarget : The phone number must have exactly 9 chars! | halt }
+      set %sms $left($2,3) 
+      if ($left(%sms,3) != 087) && ($left(%sms,3) != 088) && ($left(%sms,3) != 098) { bsend privmsg $btarget : Invalid phone number. | halt }
+      unset %sms
+      set %temp.num $right($2,8) | bsend privmsg Thing :sms %temp.num from ( $+ $benick $+ ): $3- | bsend notice $benick :Your message has been sended successfull to $2
+    }
+    elseif ($1 == !mail) {
+      if ($_checkmodules(sendmail) != 1) { halt }
+      if ($isident($benick) != admin) && ($isident($benick) != op) { _noaccess $benick }
+      if ($bsmtp == none) { bsend privmsg $btarget :this function is disabled ... | return }
+      if (($2 == $null) || ($gettok($1-,2,34) == $null) || ($gettok($1-,3-,34) == $null) || ($1 == $null)) { bsend privmsg $btarget :!mail ... not enough parameters ... usage : !mail mail@from mail@to "subject in quotes" mail body ... | return }
+      if ((@ !isin $2) || (@ !isin $3)) { bsend privmsg $btarget : $+ either  $+ $2 $+  or  $+ $3 $+  are not valid email adresses ... | return }
+      else { set %temp.mailsent $3 | sendmail $2- }
+    }
+
+    if ($isident($benick) == admin) { 
+      if ($1 == !rehash) {  _brehash $benick }
+      if ($1 == !quit) { _bquit $benick $2- }
+      if ($1 == !restart) { _brestart $benick  }
+      if ($1 == !akick) {  if ($isident($benick) != admin) { _noaccess $benick } | set %benick $benick | _akick $2- }
+      if ($1 == !makestats) { if ($_checkmodules(stats) != 1) { halt } | if ($isident($benick) != admin) { _noaccess $benick } | _makestats $2 }
+    }
+    if ($isident($benick) == admin) || ($isident($benick) == op) || ($isident($benick) == voice) || ($isident($benick) == user)  {
+      if ($1 == !pass) { _bcpass $benick $2 }
+      if ($1 == !host) {  _bchost $benick $2- }
+      if ($1 == !onjoin) { _bconjoin $benick $2- }
+      if ($1 == !adduser) { _bcadduser $benick $2- }
+      if ($1 == !deluser) { _bcdeluser $benick $2- }
+      if ($1 == !listusers) { _bclistusers $benick }            
+      if ($1 == !join) { if ($isident($benick) != op) && ($isident($benick) != admin) { _noaccess $benick } | bsend join $2- }
+      if ($1 == !part) {  if ($isident($benick) != op) && ($isident($benick) != admin) { _noaccess $benick } | bsend part $2- }
+      if ($1 == !cycle) { _bcycle $benick $btarget $2- }
+      if ($1 == !say) {
+        if ($isident($benick) != admin) && ($isident($benick) != op) { _noaccess $benick }
+        if ($2 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is !say [#channel] text ... if you use it on a #channel the 2nd parameter is optional | RETURN }
+        if ($left($2,1) != $chr(35)) {
+          if ($left($btarget,1) == $chr(35)) { bsend privmsg $btarget : $+ $2- }
+          else { bsend privmsg $benick : $+ incorrect usage ... sintax is !say [#channel] text ... if you use it on a #channel the 2nd parameter is optional }
+        }
+        else {
+          if ($3 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is !say [#channel] text ... if you use it on a #channel the 2nd parameter is optional }
+          else { bsend privmsg $2  : $+ $3- }
+        }
+      }
+      if ($1 == !voice) || ($1 == !v) || ($1 == !dv) || ($1 == !devoice) || ($1 == !op) || ($1 == !deop) { 
+        if ($isident($benick) != admin) && ($isident($benick) != op) { _noaccess $benick }
+        if ($2 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is  $+ $1 [#channel] nick ... if you use it on a #channel the 2nd parameter is optional | RETURN }
+        if ($left($2,1) != $chr(35)) {
+          if ($left($btarget,1) == $chr(35)) { bsend mode $btarget $iif($1 == !v,+v) $iif($1 == !voice,+v) $iif($1 == !op,+o) $iif($1 == !dv,-v) $iif($1 == !devoice,-v)  $iif($1 == !deop,-o)  $2- }
+          else { bsend privmsg $benick : $+ incorrect usage ... sintax is ! $+ $1 [#channel] nick ... if you use it on a #channel the 2nd parameter is optional }
+        }
+        else {
+          if ($3 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is ! $+ $1  [#channel] nick ... if you use it on a #channel the 2nd parameter is optional }
+          else { bsend mode $2 $iif($1 == !voice,+v) $iif($1 == !op,+o)  $iif($1 == !devoice,-v)  $iif($1 == !deop,-o) $3-  }
+        }
+      }
+      if ($1 == !mode) { 
+        if ($isident($benick) != admin) && ($isident($benick) != op) { _noaccess $benick }
+        if ($2 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is  $+ $1 [#channel] modes ... if you use it on a #channel the 2nd parameter is optional | RETURN }
+        if ($left($2,1) != $chr(35)) {
+          if ($left($btarget,1) == $chr(35)) { bsend mode $btarget $2- }
+          else { bsend privmsg $benick : $+ incorrect usage ... sintax is  $+ $1 [#channel] modes ... if you use it on a #channel the 2nd parameter is optional }
+        }
+        else {
+          if ($3 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is  $+ $1  [#channel] modes  ... if you use it on a #channel the 2nd parameter is optional }
+          else { bsend mode $2 $3-  }
+        }
+      }
+
+      if ($1 == !topic) { 
+        if ($isident($benick) != admin) && ($isident($benick) != op) { _noaccess $benick }
+        if ($2 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is  $+ $1 [#channel] topic ... if you use it on a #channel the 2nd parameter is optional | RETURN }
+        if ($left($2,1) != $chr(35)) {
+          if ($left($btarget,1) == $chr(35)) { bsend topic $btarget $2- }
+          else { bsend privmsg $benick : $+ incorrect usage ... sintax is  $+ $1 [#channel] topic ... if you use it on a #channel the 2nd parameter is optional }
+        }
+        else {
+          if ($3 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is  $+ $1  [#channel] topic ... if you use it on a #channel the 2nd parameter is optional }
+          else { bsend topic $2 $3-  }
+        }
+      }
+      if ($1 == !rtopic) { 
+        if ($left($2,1) != $chr(35)) {
+          if ($left($btarget,1) == $chr(35)) {  _brtopic $benick $btarget }
+          else { bsend privmsg $benick : $+ incorrect usage ... sintax is  $+ $1 [#channel] ... if you use it on a #channel the 2nd parameter is optional }
+        }
+        else { _brtopic $benick $2 }
+      }
+      if ($1 == !kick) || ($1 == !k) { 
+        var %file = $scriptdirtxt $+ \kicks.txt
+        if ($isident($benick) != admin) && ($isident($benick) != op) { _noaccess $benick }
+        if ($2 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is  $+ $1 [#channel] nick ... if you use it on a #channel the 2nd parameter is optional | return }
+        if ($left($2,1) != $chr(35)) {
+          if ($left($btarget,1) == $chr(35)) { if ($4 == $null) { var %msg = $read %file } | else { var %msg = $3- }  | bsend kick $btarget $2- : $+ %msg }
+          else { bsend privmsg $benick : $+ incorrect usage ... sintax is  $+ $1 [#channel] nick ... if you use it on a #channel the 2nd parameter is optional }
+        }
+        else {
+          if ($3 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is  $+ $1  [#channel] nick ... if you use it on a #channel the 2nd parameter is optional }
+          else { if ($4 == $null) { var %msg = $read %file } | else { var %msg = $4- } | bsend kick $2 $3 : $+ %msg  }
+        }
+      }
+      if ($1 == !talk) {
+        if ($isident($benick) != admin) { _noaccess $benick }
+        if ($2 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is: !talk on|off|write [text] }
+        if ($2 == on) { /set %sock.talk on | bsend notice $benick :Bot Private Talk now: ON }
+        if ($2 == off) { /set %sock.talk off | bsend notice $benick :Bot Private Talk now: OFF }
+        if ($2 == write) { /write bot\talk.txt $3- | bsend notice $benick :Writing to Talk Data File: $3- }
+      }      
+      if ($1 == !ban) || ($1 == !unban) || ($1 == !kban) { 
+        if ($isident($benick) != admin) && ($isident($benick) != op) { _noaccess $benick }
+        if ($2 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is  $+ $1 [#channel] nick ... if you use it on a #channel the 2nd parameter is optional | RETURN }
+        if ($left($2,1) != $chr(35)) {
+          if ($left($btarget,1) == $chr(35)) { bsend mode $btarget $iif(($1 == !ban) || ($1 == !kban),+b,-b) $2 $+ !*@* | if ($1 == !kban) { bsend kick $btarget $2 :banned } }
+          else { bsend privmsg $benick : $+ incorrect usage ... sintax is  $+ $1 [#channel] nick ... if you use it on a #channel the 2nd parameter is optional }
+        }
+        else {
+          if ($3 == $null) { bsend privmsg $benick : $+ not enough parameters ... sintax is  $+ $1  [#channel] nick ... if you use it on a #channel the 2nd parameter is optional }
+          else { 
+            bsend mode $2 $iif(($1 == !ban) || ($1 == !kban),+b,-b) $3 $+ !*@*  
+            if ($1 == !kban) { bsend kick $2-3 :Banned } 
+          } 
+        }
+      }
+      else { 
+        if ($left($btarget,1) !== $chr(35)) { if (%sock.talk == on) { /bsend privmsg $btarget : $+ $read bot\talk.txt } }
+      }
+    }
+  }
+  if (($bevent == PART) || ($bevent == QUIT)) { 
+    if ($bevent == PART) inc  %temp.spart. [ $+ [ $btarget ] ] 1
+    if ($bevent == QUIT) inc  %temp.squit. [ $+ [ $benick ] ] 1 
+    .writeini $seenfile seen $benick $day $+ , $date at $time $lower($bevent) $+ ing $chan $iif($bevent == PART, $btarget) $iif($bevent == QUIT, with the message: [ ( $btext )  ] ) 
+  }
+  if ($bevent == JOIN) { 
+    if ($benick == $bbnick) { 
+      set %temp.meaddress $baddress($benick) 
+      if ($isip_($gettok(%temp.meaddress,2,64))) { set %botip $gettok(%temp.meaddress,2,64) }
+      else { .enable #dns | .dns $gettok(%temp.meaddress,2,64) }
+      goto end
+    }
+    if ($checkprot(join) == 1) && ($_bexc($benick) != 1) {
+      if ([ %temp.Join. [ $+ [ $baddress($benick) ] ] ] != $null) { .inc %temp.Join. [ $+ [ $baddress($benick) ] ] 1 | if ([ %temp.Join. [ $+ [ $baddress($benick) ] ] ] == $checklines(join)) { goto o } | .timer 1 $checktime(join) /unset %temp.Join. [ $+ [ $baddress($benick) ] ] | goto baba }  
+      if ([ %temp.Join. [ $+ [ $baddress($benick) ] ] ] == $null) { .set %temp.Join. [ $+ [ $baddress($benick) ] ] 1 | .timer 1 $checktime(join) /unset %temp.Join. [ $+ [ $baddress($benick) ] ] | goto baba }
+      :o
+      if ($checkcastigo(join) == ban)  { .bsend mode $btarget +b $baddress($benick) }
+      bsend kick $btarget $benick : Detected mass join!
+    }
+    :baba
+    var %bla = $benick $+ ! $+ $baddress($benick)
+    var %blo = $isident($benick)
+    var %blu = $checkhost($benick)
+    var %ble = $_checkakick2(%bla)
+    var %chan = $right($gettok(%sockbot.buffer,3,32),$calc($len($gettok(%sockbot.buffer,3,32)) - 1)) 
+    inc %temp.sjoin. [ $+ [ %chan ] ] 1
+    if (%ble != $null) && ($_checkmisc(akick) == 1) { bsend mode %chan +b %ble | bsend kick %chan $benick : Akick: $_checkkick(%ble) }
+    if (%blo == admin) || (%blo == op) { bsend mode %chan +o $benick | goto end }
+    if (%blo == voice) { bsend mode %chan +v $benick | goto end } 
+    if ($useris(op,$benick) == 1) { if (%blo == op) || (%blu == 1) { bsend mode %chan +o $benick } }
+    if ($useris(admin,$benick) == 1) { if (%blo != admin) || (%blu == 1) { bsend mode %chan +o $benick } }
+    if ($useris(voice,$benick) == 1) { if (%blo != voice) || (%blu == 1) { bsend mode %chan +v $benick } }
+    :end
+    bsend names $gettok(%sockbot.buffer,3,32) 
+    if (($readini bot\config.ini on-join $benick != $null) && ($benick != $bnick) && ($_checkmisc(onjoin) == 1)) {
+      bsend privmsg %chan : $+ [ $+ $benick $+ ] $readini $inifile on-join $benick
+    }    
+  }
+  if ($bnumeric == 353) { writeini $inifile whois $remove($gettok(%sockbot.buffer,5-,32),$chr(58),@) }
+  if ($bnumeric == 302) { if ($gettok($gettok(%sockbot.buffer,2-,58),1,61) == $bbnick) { .enable #botdns | dns $gettok(%sockbot.buffer,-1,64) } }
+  elseif ($bnumeric == 003) { .timer 1 2 bsend join $replace($bchans,$chr(32),$chr(44)) | .timer 1 2 bsend userhost $bbnick | .enable #botdns }
+}

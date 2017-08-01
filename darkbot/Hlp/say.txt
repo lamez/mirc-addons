@@ -1,0 +1,3 @@
+sintax: !say [#channel] <message>
+example: !say I am a mIRC bot!
+access: op admin

@@ -1,0 +1,3 @@
+sintax: !makestats #channel 
+example: !makestats #pt-scripters
+access: admin

@@ -1,0 +1,3 @@
+sintax: !kick [#channel] <nick> [message]
+example: !kick #pt-scripters lamest you are lame
+access: op admin

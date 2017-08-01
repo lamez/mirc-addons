@@ -1,0 +1,5 @@
+sintax: !onjoin add|del nick [on-join quote]
+example: !onjoin add PTS This is my on join message
+( admins can remove and add other user´s onjoin quote by
+  typing: !onjoin add|del other-nick [on-join quote] )
+access: voice op admin

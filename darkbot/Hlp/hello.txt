@@ -1,0 +1,3 @@
+sintax: !hello <nick>
+example: !hello PTS
+access: user voice op admin

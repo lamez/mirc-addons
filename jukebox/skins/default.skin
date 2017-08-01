@@ -1,0 +1,78 @@
+size
+170 106
+bmp-file
+default.bmp
+skin-file
+default.skin
+bg-color
+1
+bg-image
+default-bg.bmp
+bg-loc
+0 0
+disp-bg
+1
+disp-text
+14
+disp-font
+arial 13
+disp-loc
+10 25 105 12
+header-font
+arial 13
+header-color
+0
+header-loc
+7 5
+close
+152 7 97 85 10 9
+close-down
+152 7 97 96 10 9
+min
+139 7 111 85 10 9
+min-down
+139 7 111 96 10 9
+back
+9 75 3 3 20 20
+back-down
+9 75 4 25 20 20
+play
+34 75 27 3 20 20
+play-down
+34 75 27 25 20 20
+pause
+59 75 51 3 20 20
+pause-down
+59 75 51 25 20 20
+stop
+84 75 75 3 20 20
+stop-down
+84 75 75 25 20 20
+forward
+109 75 99 3 20 20
+forward-down
+109 75 99 25 20 20
+open
+139 75 122 3 20 20
+open-down
+139 75 122 25 20 20
+id3
+9 40 147 3 20 15
+id3-down
+9 40 146 25 20 15
+mp3list
+122 25 7 85 38 14
+mp3list-down
+122 25 53 84 38 14
+playlist
+122 40 7 100 38 14
+playlist-down
+122 40 53 99 38 14
+seek
+9 60 7 53 150 9
+seek-slider
+9 61 162 52 28 8
+volume
+37 43 7 72 75 9
+vol-slider
+37 44 86 71 20 8

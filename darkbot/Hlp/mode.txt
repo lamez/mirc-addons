@@ -1,0 +1,3 @@
+sintax: !mode [#channel] <modes>
+example: !mode #pt-scripters +m
+access: op admin

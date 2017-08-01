@@ -1,0 +1,46 @@
+alias telnetstart {
+if ( $sock(sockbot).name !== $null ) {
+  /socklisten admin 314 
+  /set %net.pws shakenet
+}
+}
+alias -l partyline.who {
+  var %pwho = 1
+  sockwrite -n $1 Listing active users...
+  while ($sock(admin.*,%pwho)) { sockwrite -n $1 [ $sock(admin.*,%pwho).ip ] | inc %pwho }
+  sockwrite -tn $1 End of users 
+}
+
+on *:socklisten:admin:{
+  /set %socket tmp. $+ $rand(0,10)
+  /sockaccept %socket
+  /sockwrite -tn %socket Welcome to Xsoft IRC Bot (DarkBot) server
+  /sockwrite -tn %socket Type the server password:
+}
+on *:sockread:tmp*:{
+  sockread %tmp
+  if ( %tmp !== $null ) {
+    if ( %tmp == %net.pws ) { /sockrename $sockname admin. $+ $rand(0,10) | /sockwrite -tn $sockname Password accepted! | /sockwrite -tn $sockname Type help to see the server commands | halt }
+    else { /sockwrite -tn $sockname Password incorrect! }
+  }
+}
+
+on *:sockread:admin.*:{
+  sockread %tmp
+  if ( %tmp !== $null ) {
+    if ( %tmp == help ) {
+      /sockwrite -tn $sockname Commands for remote telnet admin connections:
+      /sockwrite -tn $sockname do <raw command> - Process command on the bot
+      /sockwrite -tn $sockname spy <on/off> - Turn spy function on or off (see all incomming data to the bot)
+      /sockwrite -tn $sockname bye - Close the telnet connection
+      /sockwrite -tn $sockname who - Show you the active connections
+    }
+    if ($gettok(%tmp,1,32) == do) { /sockwrite -tn sockbot $gettok(%tmp,2-,32) | /sockwrite -tn $sockname Processing command: $gettok(%tmp,2-,32) }
+    if ($gettok(%tmp,1,32) == bye) { /sockwrite -tn $sockname Closing connection... | /sockclose $sockname }
+    if ($gettok(%tmp,1,32) == who) { /partyline.who $sockname }
+    if ($gettok(%tmp,1,32) == spy) {
+      if ($gettok(%tmp,2,32) == on) { /set %sock.spy on | /sockwrite -tn $sockname Spy enabled! }
+      if ($gettok(%tmp,2,32) == off) { /set %sock.spy off | /sockwrite -tn $sockname Spy disabled! }
+    }
+  }
+}

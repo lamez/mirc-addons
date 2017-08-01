@@ -1,0 +1,231 @@
+DarkBot
+coded by ShakE
+
+
+shake@rousse.zzn.com
+http://shake.hit.bg
+shake@abv.bg
+http://program-chan.hit.bg
+
+
+::: functions 
+
+parameters inside [ ] are optional
+parameters inside < > need to be replaced
+
+: admin commands
+
+!rehash
+!restart
+!quit
+!adduser
+!akick
+!deluser
+!learn 
+!relearn 
+!forget
+!makestats
+
+
+: op commands
+
+!voice
+!devoice
+!op
+!deop 
+!ban
+!kban
+!kick
+!unban
+!mode
+!topic
+!join 
+!part 
+!mail
+!sms
+!say
+!cycle
+!rtopic
+
+
+: voice commands
+
+!rose
+!hello
+!host
+!onjoin
+!calc
+!reverse
+
+
+: user commands
+
+!calc 
+!reverse 
+!rose
+!hello
+
+
+: not-listed users
+
+!seen
+?? word
+!time
+!date
+!fserve
+
+
+
+ @ COMMAND LIST @
+
+
+!seen
+syntax : !seen <nickname>
+
+!join
+syntax : !join #channel,[#channel2],[#channel3],etc
+
+!part
+syntax : !part [#channel],[#channel2],etc
+if no channel is specified the bot parts the actual channel ,
+thus to be executed in a pvt window , it needs the 2nd parameter.
+if [#channel] is specified the bot parts [#channel],[#channel2] 
+and so on :)
+
+!cycle
+syntax: !cycle [#channel]
+if no channel is specified the bot cycles the actual chan
+
+!calc
+syntax : !calc <expression(s)>
+
+!learn
+syntax : !learn <word> <definition>
+if word is already defined , it WILL NOT be overwriten.
+
+!relearn
+same as !learn , only it overwrites definition if it exists
+
+!forget
+syntax : !forget <word>
+erases a definition
+
+!reverse
+syntax : !reverse <word(s)>
+reverse's a word and says it
+example !reverse bot , returns "tob"
+
+??
+syntax : ?? <word>
+looks for a definition and if exists , says it
+
+!help
+syntax : !help [topic]
+if no topic is given the general help is displayed, else if the help 
+topic exist , it is displayed.
+
+!mail
+syntax : !mail <your@email.ss> <mail@to.to> <"subject in quotes"> <mail message ...>
+example : !mail root@chapa-da.net bill@microsoft.com "hi there" how are you ?
+
+!sms
+syntax: !sms <number> <message>
+example: !sms 087729400 this is a test!
+
+!adduser
+syntax: !adduser <nick> op|voice|user [password]
+example: !adduser PTS admin mypass
+( if not specified password will be "lame" )
+
+!deluser
+syntax: !deluser <nick>
+example: !deluser PTS
+
+!onjoin
+syntax: !onjoin add|del nick [on-join quote]
+example: !onjoin add PTS This is my on join message
+( admins can remove and add other user´s onjoin quote by
+  typing: !onjoin add|del other-nick [on-join quote] )
+
+!makestats
+syntax: !makestats #channel 
+example: !makestats #ShakE
+
+!akick
+syntax: !akick add|del <nick|host> [akick message]
+example: !akick add *!*@*.aol.com We dont like you!
+
+!host
+syntax: !host add|del|list [host]
+example: !host add *!fobias@*.spoofed.ms
+
+!pass
+syntax: !pass <new-password>
+example: !pass lame
+
+!kick
+syntax: !kick [#channel] <nick> [message]
+example: !kick #ShakE lamest you are lame
+
+!topic
+syntax: !topic [#channel] <new-topic>
+example: !topic #ShakE http://shake.hit.bg
+
+syntax: !rtopic [#channel]
+Inserts a random topic on #channel or $active reading a
+random line from txt\randtopic.txt
+example: !rtopic #ShakE
+
+!mode
+syntax: !mode [#channel] <modes>
+example: !mode #ShakE +m
+
+!ban
+syntax: !ban [#channel] <nick|host>
+example: !ban #ShakE *!*@*.aol.com
+
+!kban
+syntax: !kban [#channel] <nick|host> [message]
+example: !kban #ShakE lamest get out!
+
+!unban
+syntax: !unban [#channel] <nick|host>
+example: !unban #ShakE lamest*!*@*
+
+!op
+syntax: !op [#channel] <nick>
+example: !op #ShakE g0d
+
+!deop
+syntax: !deop [#channel] <nick>
+example: !deop #ShakE g0d
+
+!voice
+syntax: !voice [#channel] <nick>
+example: !voice #ShakE PTS
+
+!devoice
+syntax: !devoice [#channel] <nick>
+example: !devoice #ShakE PTS
+
+!say
+syntax: !say [#channel] <message>
+example: !say I am a mIRC bot!
+
+id
+syntax: id <password> [handle]
+example: id lame ShakE
+
+!rose 
+syntax: !rose <nick>
+example: !rose PTS
+
+!hello
+syntax: !hello <nick>
+example: !hello PTS
+
+!fserve
+syntax: !fserve
+this opens a new fserver version (can be used by everyone) if you have
+the fserver module turned on
+example: !fserve

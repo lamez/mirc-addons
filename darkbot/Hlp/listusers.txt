@@ -1,0 +1,3 @@
+sintax: !listusers
+example: !listusers
+access: user voice op admin

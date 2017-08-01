@@ -1,0 +1,3 @@
+sintax: id <password> [handle]
+example: id lame PTS
+access: user voice op admin

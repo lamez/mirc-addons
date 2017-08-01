@@ -1,0 +1,447 @@
+;Don't EDIT ThiS YoU Fucking LameR
+;The ScRipT Will NoT WorK Correctly
+;AnD I Will FinD YoU,AnD TheN..."Dupe da ti e qko!"
+
+dialog botmonitor {
+  size -1 -1 107 75
+  title "!"
+  button "close", 1, 4 52 100 20, ok
+  box "", 99, -2 -6 132 177
+  button "connect", 3, 4 7 100 20
+  button "setup", 13, 4 30 100 20
+}
+
+alias ^call { return dialog - $+ $2 $1 $1 }
+
+alias botmonitor { 
+  if ($dialog(botmonitor) == $null)  $^call(botmonitor,m) 
+  dialog -s botmonitor 5 80 112 75
+  if ($sock(sockbot)) { dialog -t botmonitor connected | did -ra botmonitor 3 disconnect }
+  else { dialog -t botmonitor disconnected | did -ra botmonitor 3 connect }
+
+}
+
+alias ifsock {
+  if ($sock(sockbot)) { return disconnect }
+  else { return run } 
+}
+
+menu menubar,status {
+  -
+  -  
+  DarkBot
+  .$ifsock : {
+    if ($ifsock == run)  botmonitor
+    else bclose | botmonitor  | did -ra botmonitor 3 connect
+  }
+  .-
+  .$iif($dialog(botstatus) == $null, botstatus): { _botstatus }
+  .-
+  .setup
+  ..setup: { $^call(botconf,m) }
+  ..-
+  ..main conf:{ $^call(botconfig,m) }
+  ..protections:.botprots
+  ..users:{ $^call(botusers,m) }
+  .-
+  .- 
+  .help
+  ..readme : /load_help readme.txt
+  ..functions : /load_help functions.txt
+  .-
+  .about : $^call(botabout,m)
+}
+
+alias _bunload { if ($?!="Are you sure you wish to unload DarkBot?") _bbunload }
+alias _bbunload { 
+  set %temp.status unload
+  .load -rs $findfile($mircdir,loadme.mrc,1,2)
+}
+
+on *:dialog:botmonitor:sclick:*: {
+  if ($did == 3) {
+    if ($did(3) == disconnect) { sockclose sockbot | botmonitor }
+    else  { bconnect }
+  }
+  elseif ($did == 13) { .botconf }
+}
+
+on *:sockclose:sockbot: {
+  if ($_checkmisc(reconnect) == 1) && (%temp.quiton) { .bconnect | goto enda-mos } 
+  unset %sockbot.* | unset %ident.* | unset %host.* | unset %sockhost.* | unset %temp.* | .timerstats* off | botmonitor 
+  if ($dialog(botstatus)) && ($readini $inifile statusoptions close == on) { .dialog -c botstatus botstatus }
+  :enda-mos
+}
+
+on *:dialog:botusers:init:*: {
+  did -c botusers 111
+  did -ra botusers 98 add user
+}
+
+dialog botusers {
+  title ""
+  size -1 -1 240 250
+  button "close", 1, 10 224 100 20, ok
+  list 99, 10 10 100 220, extsel 
+  box " add user ", 98, 120 10 105 76
+  edit "", 10, 127 30 90 20, autohs
+  button "add", 11, 129 55 87 20
+  box "", 198, 120 90 105 46
+  button "remove", 12, 129 105 87 20
+  box "", 197, 120 140 105 100
+  radio "user", 111, 135 150 55 20, group
+  radio "voice", 113, 135 170 55 15
+  radio "op", 114, 135 190 55 15
+  radio "admin", 112, 135 210 55 15
+}
+
+on *:dialog:botusers:sclick:*: {
+  if ($did == 111) { did -r botusers 99 | did -ra botusers 98 $chr(32) add user $chr(32) | listbusers user }
+  elseif ($did == 112) { did -r botusers 99 | did -ra botusers 98 $chr(32) add admin $chr(32) | listbusers admin }
+  elseif ($did == 113) { did -r botusers 99 | did -ra botusers 98 $chr(32) add voice $chr(32) | listbusers voice }
+  elseif ($did == 114) { did -r botusers 99 | did -ra botusers 98 $chr(32) add op $chr(32) | listbusers op }
+  elseif (($did == 12) && ($did(99,$did(99).sel) != $null)) { 
+    remini bot\ident.ini ident $did(99,$did(99).sel)
+    remini bot\ident.ini $gettok($did(98),2,32) $did(99,$did(99).sel)
+    remini $inifile $gettok($did(98),2,32) $did(99,$did(99).sel) | did -r botusers 99 | listbusers $gettok($did(98),2,32) 
+    remini bot\users.lst users $gettok($did(98),2,32)
+  }
+  elseif (($did == 11) && ($did(10))) {
+    if ($readini $inifile $gettok($did(98),2,32)  $did(10) == $null) { 
+      writeini bot\ident.ini ident $did(10) lame
+      writeini $inifile $gettok($did(98),2,32) $did(10) $gettok($did(98),2,32) | did -r botusers 99 | listbusers $gettok($did(98),2,32) 
+      writeini bot\users.lst users $did(10) $gettok($did(98),2,32)
+    }
+    did -r botusers 10
+  }
+}
+
+
+alias listbusers {
+  var %temp = 1
+  while (%temp <= $ini($inifile,$$1,0)) {
+    did -a botusers 99 $ini($inifile,$$1,%temp)
+    inc %temp
+  }
+}
+
+on *:dialog:botusers:init:*: { did -f botusers 99 }
+
+dialog botconfig {
+  title "Main setup"
+  size -1 -1 300 330
+  tab "Connection", 3, 5 5 290 290
+  tab "Modules", 4
+  tab "Misc", 5
+  tab "About", 6
+  box "", 99, -2 -6 342 357
+  text "nickname", 97, 20 48 50 20, tab 3
+  edit "", 96, 100 45 160 20, autohs tab 3
+  text "irc name", 95, 20 70 50 20, tab 3
+  edit "", 94, 100 66 160 20, autohs tab 3
+  text "ident", 93, 20 92 50 20, tab 3
+  edit "", 92, 100 88 160 20, autohs tab 3
+  text "server", 91, 20 112 50 20, tab 3
+  edit "", 90, 100 110 160 20, autohs tab 3
+  text "nickserv pass", 191, 20 136 70 20, tab 3
+  edit "", 190, 100 131 160 20, autohs pass tab 3
+  text "port", 194, 20 156 70 20, tab 3
+  edit "", 195, 100 153 160 20, autohs tab 3
+  text "smtp server", 192, 20 176 70 20, tab 3
+  edit "", 193, 100 175 160 20, autohs tab 3
+  text "bot's channel(s)", 292, 20 196 90 20, tab 3
+  edit "", 293, 100 195 160 20, autohs tab 3
+  text "owner´s nick", 294, 20 216 90 20, tab 3
+  edit "", 295, 100 215 160 20, autohs tab 3
+
+  check "Load Seen module", 10, 50 38 150 15, tab 4
+  check "Load Sendmail module", 11, 50 63 150 15, tab 4
+  check "Load SMS module", 12, 50 88 150 15, tab 4
+  check "Load FileServer module", 13, 50 113 150 15, tab 4
+  check "Load remote module", 271, 50 138 150 15, tab 4
+  check "Load Stats module", 14, 50 163 150 15, tab 4
+  text "Channels:", 15, 60 185 50 15, tab 4
+  edit "", 16, 115 181 150 20, autohs tab 4
+  text "Refresh rate ( in mins ):", 17, 60 210 110 15, tab 4
+  edit "", 18, 175 206 30 20, tab 4
+  text "Files directory:", 111, 60 235 70 15, tab 4
+  edit "", 112, 132 231 125 20, autohs tab 4
+  button "X", 113, 260 231 17 20, tab 4
+  check "Show user hosts on stats", 270, 60 255 160 20, tab 4
+
+
+  check "ask chanserv for op on deOp", 19, 50 48 180 15, tab 5
+  check "Ban protection active", 20, 50 78 160 15, tab 5
+  check "On join quote for users with on-join msg set", 21, 50 108 220 15, tab 5
+  check "Cloak ctcps", 22, 50 138 150 15, tab 5
+  check "Akick list active", 23, 50 168 150 15, tab 5
+  check "Ignore Nickserv notices", 272, 50 198 150 15, tab 5
+  check "Reconnect on disconnect", 273, 50 228 150 15, tab 5
+  icon 25, 10 31 140 217, Bot\gfx\logo.jpg, tab 6
+  text "*DarkBot*", 26, 187 50 100 15, tab 6
+  text "v1.0", 27, 210 68 60 15, tab 6
+  text "Coded by ShakE", 28, 160 95 130 15, tab 6
+  text "By ShakE", 29, 170 115 120 15, tab 6
+  text "Xsoft", 30, 186 130 70 15, tab 6
+  link "http://shake.hit.bg", 31, 176 160 100 15, tab 6
+  link "shake@abv.bg", 32, 178 180 100 15, tab 6
+  text "ShakE", 33, 165 220 126 15, tab 6
+  text "'Smoking dope since 1984'", 200, 86 260 160 15, tab 6 
+
+  button "Ok", 1, 95 300 50 25, ok default
+  button "Cancel", 2, 155 300 50 25, cancel
+}
+
+alias inifile { return " $+ $scriptdir $+ config.ini $+ " }
+alias seenfile { return " $+ $scriptdir $+ seen.dat $+ " }
+
+on *:dialog:botconfig:sclick:14: {
+  if ($did(14).state) did -e botconfig 16,18,112,270
+  else did -b botconfig 16,18,112,270
+}
+on *:dialog:botconfig:sclick:31:run http://shake.hit.bg
+on *:dialog:botconfig:sclick:32:run http://shake.hit.bg/contacts.htm
+on *:dialog:botconfig:sclick:113: { .timer -m 1 200 _botsetdir }
+alias _botsetdir {
+  var %dir = $sdir="Select a directory"
+  if (%dir) && ($dialog(botconfig)) did -ra botconfig 112 %dir
+}
+on *:dialog:botconfig:sclick:1: {
+  writeini $inifile config channels $$did(293)
+  writeini $inifile config port $$did(195)
+  writeini $inifile config nick $$did(96)
+  writeini $inifile config ircname $$did(94)
+  writeini $inifile config ident $$did(92)
+  writeini $inifile config server $$did(90)
+  writeini $inifile config password $$did(190)
+  writeini $inifile config smtp $$did(193)
+  writeini $inifile config owner $$did(295)
+  if ($did(10).state) .writeini $inifile modules seen on
+  else .writeini $inifile modules seen off
+  if ($did(11).state) .writeini $inifile modules sendmail on
+  else .writeini $inifile modules sendmail off
+  if ($did(12).state) .writeini $inifile modules sms on
+  else .writeini $inifile modules sms off
+  if ($did(13).state) .writeini $inifile modules dcc on
+  else .writeini $inifile modules dcc off
+  if ($did(14).state) .writeini $inifile modules stats on 
+  else .writeini $inifile modules stats off 
+  if ($did(271).state) .writeini $inifile modules remote on
+  else .writeini $inifile modules remote off
+  if ($did(16)) .writeini $inifile stats chans $did(16)
+  if ($did(18)) .writeini $inifile stats refresh $did(18)
+
+  if ($did(19).state) .writeini $inifile misc deop on
+  else .writeini $inifile misc deop off
+  if ($did(20).state) .writeini $inifile misc ban on
+  else .writeini $inifile misc ban off
+  if ($did(21).state) .writeini $inifile misc onjoin on
+  else .writeini $inifile misc onjoin off
+  if ($did(22).state) .writeini $inifile misc ctcps on
+  else .writeini $inifile misc ctcps off
+  if ($did(23).state) .writeini $inifile misc akick on
+  else .writeini $inifile misc akick off
+  if ($did(272).state) .writeini $inifile misc nickserv on
+  else .writeini $inifile misc nickserv off
+  if ($did(273).state) .writeini $inifile misc reconnect on
+  else .writeini $inifile misc reconnect off
+  if ($did(112)) .writeini $inifile stats dir $did(112) 
+  if ($did(270).state) .writeini $inifile stats show on
+  else .writeini $inifile stats show off
+}
+
+on *:dialog:botconfig:init:*: {
+  did -a botconfig 293 $bchans
+  did -a botconfig 195 $bport
+  did -fa botconfig 96 $bbnick
+  did -a botconfig 94 $bircname
+  did -a botconfig 92 $bident
+  did -a botconfig 90 $bserver
+  did -a botconfig 190 $bnickpass
+  did -a botconfig 193 $bsmtp
+  did -a botconfig 295 $owner
+  if ($_checkmodules(seen) == 1) { did -c botconfig 10 }
+  if ($_checkmodules(sendmail) == 1) { did -c botconfig 11 }
+  if ($_checkmodules(sms) == 1) { did -c botconfig 12 }
+  if ($_checkmodules(dcc) == 1) { did -c botconfig 13 }
+  if ($_checkmodules(remote) == 1) { did -c botconfig 271 }
+  if ($_checkmodules(stats) == 1) { did -c botconfig 14  }
+  else { did -b botconfig 16,18,112,270 }
+  if ($_checkstatschan != $null) { did -ra botconfig 16 $_checkstatschan } | else { did -ra botconfig 16 $bchans }
+  if ($_checkstatsref != $null) { did -ra botconfig 18 $_checkstatsref }
+  if ($_checkmisc(deop) == 1) { did -c botconfig 19 }
+  if ($_checkmisc(ban) == 1) { did -c botconfig 20 }
+  if ($_checkmisc(onjoin) == 1) { did -c botconfig 21 }
+  if ($_checkmisc(ctcps) == 1) { did -c botconfig 22 }
+  if ($_checkmisc(akick) == 1) { did -c botconfig 23 }
+  if ($_checkmisc(nickserv) == 1) { did -c botconfig 272 }
+  if ($_checkmisc(reconnect) == 1) { did -c botconfig 273 }
+  if ($_checkstatsdir != $null) { did -ra botconfig 112 $_checkstatsdir }
+  if ($_bshowhost == 1) { did -c botconfig 270 }
+}
+
+alias botsetup $^call(botconfig,m) 
+alias _doaboutgfx {
+  .timerbla2 -m 1 100 did -g botabout 69 Bot\gfx\small.bmp
+  .timerbla3 -m 1 200 did -g botabout 70 Bot\gfx\small.bmp
+  .timerbla5 -m 1 300 did -g botabout 71 Bot\gfx\small.bmp
+  .timerbla7 -m 1 400 did -g botabout 72 Bot\gfx\small.bmp
+  .timerbla9 -m 1 500 did -g botabout 73 Bot\gfx\small.bmp
+  .timerbla11 -m 1 600 did -g botabout 74 Bot\gfx\small.bmp
+  .timerbla13 -m 1 700 did -g botabout 75 Bot\gfx\small.bmp
+  .timerbla15 -m 1 800 did -g botabout 76 Bot\gfx\small.bmp
+  .timerbla17 -m 1 900 did -g botabout 77 Bot\gfx\small.bmp
+  .timerbla19 -m 1 1000 did -g botabout 78 Bot\gfx\small.bmp
+  .timerbla21 -m 1 1100 did -g botabout 79 Bot\gfx\small.bmp
+  .timerbla23 -m 1 1200 did -g botabout 80 Bot\gfx\small.bmp
+  .timerbla36 -m 1 1240 did -g botabout 69 Bot\gfx\smalll.bmp
+  .timerbla24 -m 1 1240 did -g botabout 70 Bot\gfx\smalll.bmp
+  .timerbla25 -m 1 1240 did -g botabout 71 Bot\gfx\smalll.bmp
+  .timerbla26 -m 1 1240 did -g botabout 72 Bot\gfx\smalll.bmp
+  .timerbla27 -m 1 1240 did -g botabout 73 Bot\gfx\smalll.bmp
+  .timerbla28 -m 1 1240 did -g botabout 74 Bot\gfx\smalll.bmp
+  .timerbla29 -m 1 1240 did -g botabout 75 Bot\gfx\smalll.bmp
+  .timerbla30 -m 1 1240 did -g botabout 76 Bot\gfx\smalll.bmp
+  .timerbla31 -m 1 1240 did -g botabout 77 Bot\gfx\smalll.bmp
+  .timerbla32 -m 1 1240 did -g botabout 78 Bot\gfx\smalll.bmp
+  .timerbla33 -m 1 1240 did -g botabout 79 Bot\gfx\smalll.bmp
+  .timerbla34 -m 1 1240 did -g botabout 80 Bot\gfx\smalll.bmp
+  .timerbla35 -m 1 1600 _doaboutgfx
+}
+
+
+dialog botabout {
+  title "About DarkBot"
+  size -1 -1 300 280
+  icon 25, 10 26 140 217, Bot\gfx\logo.jpg, tab 6
+
+  icon 69, 153 36 8 10, Bot\gfx\smalll.bmp, tab 6
+  icon 70, 153 53 8 10, Bot\gfx\smalll.bmp, tab 6
+  icon 71, 153 70 8 10, Bot\gfx\smalll.bmp, tab 6
+  icon 72, 153 87 8 10, Bot\gfx\smalll.bmp, tab 6
+  icon 73, 153 104 8 10, Bot\gfx\smalll.bmp, tab 6
+  icon 74, 153 121 8 10, Bot\gfx\smalll.bmp, tab 6
+  icon 75, 153 138 8 10, Bot\gfx\smalll.bmp, tab 6
+  icon 76, 153 155 8 10, Bot\gfx\smalll.bmp, tab 6
+  icon 77, 153 172 8 10, Bot\gfx\smalll.bmp, tab 6
+  icon 78, 153 189 8 10, Bot\gfx\smalll.bmp, tab 6
+  icon 79, 153 206 8 10, Bot\gfx\smalll.bmp, tab 6
+  icon 80, 153 223 8 10, Bot\gfx\smalll.bmp, tab 6
+
+  text "*DarkBot*", 26, 187 40 100 15, tab 6
+  text "v1.0", 27, 210 58 60 15, tab 6
+  text "shake@rousse.zzn.com", 28, 165 85 130 15, tab 6
+  text "by: ShakE", 29, 170 105 120 15, tab 6
+  text "Xsoft", 30, 186 120 70 15, tab 6
+  link "http://shake.hit.bg", 31, 176 150 100 15, tab 6
+  link "shake@abv.bg", 32, 178 170 100 15, tab 6
+  text "ShakE", 33, 165 210 126 15, tab 6
+  button "Close", 1, 125 250 50 25, ok default
+  button "Cancel", 2, 1000 1000 50 25, cancel
+}
+
+on *:dialog:botabout:sclick:1:.timerbla* off
+on *:dialog:botabout:sclick:2:.timerbla* off
+on *:dialog:botabout:sclick:31:run n
+on *:dialog:botabout.sclick:32:run n/contacts.htm
+on *:dialog:botabout:init:*: { _doaboutgfx }
+alias botabout dialog -mn botabout botabout 
+
+dialog botconf {
+  title "DarkBot"
+  size -1 -1 150 280
+  box "", 169, 5 15 140 223
+  button "main setup", 3, 25 30 100 20
+  button "users / admins", 4, 25 55 100 20
+  button "protections", 5, 25 80 100 20
+  button "about", 6, 25 105 100 20
+  button "help", 7, 25 130 100 20
+  link "http://shake.hit.bg", 31, 25 160 100 15
+  link "shake@abv.bg", 32, 27 180 100 15
+  text "ShakE", 33, 26 210 126 15
+  button "Close", 1, 35 250 80 22, ok default
+  button "Cancel", 2, 1000 1000 50 25, cancel
+}
+alias botconf $^call(botconf,m) 
+on *:dialog:botconf:sclick:*: {
+  if ($did == 3) botsetup
+  if ($did == 4) $^call(botusers,m) 
+  if ($did == 5) botprots
+  if ($did == 6) botabout
+  if ($did == 7) load_help readme.txt
+}
+
+dialog botstatus {
+  size 1 70 600 30
+  title "DarkBot v1.0 Status controler"
+  button "ok", 1, 1000 1000 1 1, ok default
+  check ">>", 2, 10 5 30 20, push
+  list 3, 10 40 580 190
+  check "Loggin to", 4, 10 225 80 15  
+  edit "", 5, 90 222 200 20
+  button "X", 6, 300 222 30 20
+  button "Clear", 7, 500 222 50 20
+  button "Cancel", 9, 1000 1000 1 1, cancel
+  text "", 8, 80 10 300 15 
+  button "conn", 10, 430 5 33 20
+  button "disconn", 11, 470 5 44 20
+  button "options", 12, 540 5 44 20
+}
+on *:dialog:botstatus:init:*: {
+  _botstat
+  .timerbla 0 30 _botstat
+  if ($readini $inifile status dir != $null) { did -ra botstatus 5 $ifmatch }
+  if ($_checkstatus(logging) == 1) { did -c botstatus 4 }
+  else { did -b botstatus 5,6 }
+}
+on *:dialog:botstatus:sclick:9: { .timerbla off }
+on *:dialog:botstatus:sclick:2: {
+  if ($did(2).state) { dialog -s botstatus 1 70 600 250 }
+  else { dialog -s botstatus 1 70 600 30 }
+}
+on *:dialog:botstatus:sclick:7: { did -r botstatus 3 }
+on *:dialog:botstatus:sclick:10: { .bconnect | .timer -m 1 500 did -b botstatus 10 | .timer -m 1 500 did -e botstatus 11 }
+on *:dialog:botstatus:sclick:11: { sockclose sockbot | .timer -m 1 500 did -b botstatus 11 | .timer -m 1 500 did -e botstatus 10 }
+on *:dialog:botstatus:sclick:12: { botstatusoptions }
+on *:dialog:botstatus:sclick:4: {
+  if ($did(4).state) { .writeini $inifile status logging on | did -e botstatus 5,6 }
+  else { .writeini $inifile status logging off | did -b botstatus 5,6 }
+}
+on *:dialog:botstatus:sclick:6: { .timer -m 1 200 _botsetlog }
+alias _botsetlog {
+  var %dir = $scriptdir
+  var %temp.bla = $sfile(%dir,Select a file)
+  if ($dialog(botstatus)) { did -ra botstatus 5 %temp.bla | .writeini $inifile status dir %temp.bla } 
+}
+
+alias _botstat {
+  if ($sock(sockbot) && $dialog(botstatus)) { 
+    var %temp.online = $remove($duration($calc($ctime - %temp.connected)),rs,r,ins,in,ks,k)
+    var %var = bot connected to $bserver on port $bport for %temp.online  | did -ra botstatus 8 %var 
+    did -e botstatus 11 | did -b botstatus 10
+  }
+  else { did -ra botstatus 8 bot not connected | did -b botstatus 11 | did -e botstatus 10 }
+}
+
+alias _botstatus $^call(botstatus,m)
+
+alias botstatusoptions $^call(botstatusoptions,m)
+
+dialog botstatusoptions {
+  size -1 -1 240 130
+  title "DarkBot status options"
+  button "ok", 1, 75 105 40 20, ok default
+  button "cancel", 2, 125 105 40 20, cancel
+  check "Call bot status monitor on connect", 3, 15 30 190 15
+  check "Close bot status monitor on disconnect", 4, 15 60 210 15
+}
+on *:dialog:botstatusoptions:init:*: {
+  if ($readini $inifile statusoptions call == on) { did -c botstatusoptions 3 }
+  if ($readini $inifile statusoptions close == on) { did -c botstatusoptions 4 }
+}
+on *:dialog:botstatusoptions:sclick:1: {
+  if ($did(3).state) { .writeini $inifile statusoptions call on }
+  else { .writeini $inifile statusoptions call off }
+  if ($did(4).state) { .writeini $inifile statusoptions close on }
+  else { .writeini $inifile statusoptions close off }
+}

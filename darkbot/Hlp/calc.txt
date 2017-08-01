@@ -1,0 +1,2 @@
+sintax: !calc <expression(s)>
+access: voice op admin user

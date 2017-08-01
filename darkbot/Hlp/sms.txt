@@ -1,0 +1,3 @@
+sintax: !sms <number> <message>
+example: !sms 087729400 this is a test!
+access: op admin

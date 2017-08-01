@@ -1,0 +1,2 @@
+sintax: !seen <nickname>
+access: all

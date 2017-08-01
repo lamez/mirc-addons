@@ -1,0 +1,3 @@
+sintax: !cycle [#channel]
+if no channel is specified the bot cycles the actual channel
+access: op admin

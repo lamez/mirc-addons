@@ -1,0 +1,3 @@
+sintax: !pass <new-password>
+example: !pass lame
+access: user voice op admin

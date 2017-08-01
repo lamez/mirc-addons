@@ -1,0 +1,2 @@
+sintax: ?? <word>
+looks for a definition and if exists , says it

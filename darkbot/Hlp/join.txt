@@ -1,0 +1,6 @@
+sintax: !join [#channel],[#channel2],etc
+if no channel is specified the bot joins the actual channel ,
+this to be executed in a pvt window , it needs the 2nd parameter.
+if [#channel] is specified the bot joins [#channel],[#channel2] 
+and so on :)
+access: op admin

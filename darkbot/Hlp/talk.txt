@@ -1,0 +1,4 @@
+sintax: !talk on|off|write [text]
+example: !talk on
+example2: !talk write Az sam go6ko hubaveca, ve4nia ergen...
+access: admin

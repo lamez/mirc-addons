@@ -1,0 +1,3 @@
+sintax: !devoice [#channel] <nick>
+example: !devoice #pt-scripters PTS
+access: op admin

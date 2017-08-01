@@ -1,0 +1,3 @@
+sintax: !kban [#channel] <nick|host> [message]
+example: !kban #pt-scripters lamest get out!
+access: op admin

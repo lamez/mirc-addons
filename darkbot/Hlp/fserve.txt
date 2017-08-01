@@ -1,0 +1,3 @@
+sintax: !fserve
+The Bot Servs you files (Opens DCC Chat & File Server)
+access: all users (user voice op admin)

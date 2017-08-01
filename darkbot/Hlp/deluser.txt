@@ -1,0 +1,3 @@
+sintax: !deluser <nick>
+example: !deluser PTS
+access: admin

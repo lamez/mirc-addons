@@ -1,0 +1,3 @@
+sintax: !forget <word>
+erases a definition
+access: admin

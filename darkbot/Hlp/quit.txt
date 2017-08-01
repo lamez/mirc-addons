@@ -1,0 +1,3 @@
+sintax: !quit [quit msg]
+The bot quits the connection with an optional quit msg
+access: admin

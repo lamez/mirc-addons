@@ -1,0 +1,3 @@
+sintax: !adduser <nick> op|voice|user [password]
+example: !adduser PTS admin mypass
+access: admin

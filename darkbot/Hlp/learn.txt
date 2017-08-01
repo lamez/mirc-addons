@@ -1,0 +1,3 @@
+sintax: !learn <word> <definition>
+if word is already defined , it WILL NOT be overwriten.
+access: op admin

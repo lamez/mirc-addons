@@ -1,0 +1,129 @@
+;Don't EDIT ThiS YoU Fucking LameR
+;The ScRipT Will NoT WorK Correctly
+;AnD I Will FinD YoU,AnD TheN..."Dupe da ti e qko!"
+
+alias -l getdccport { :barf | var %§barf = $r(1024,9999) | if ($portfree(%§barf)) { return %§barf } | goto barf }
+alias -l fserve.prompt { sockwrite -n $1 0,1C: $+ $fserve.info($1).dir $+ > }
+alias -l fserve.close { sockwrite -n $1 0,1thanks for using my fserver! $+ $crlf $+ $crlf $+ 0,1closing fserver connection... | sockclose $1 }
+alias -l fserve.info {
+  if ($prop == nick) { return $gettok($sock($1).mark,1,32) }
+  if ($prop == dir) { return $gettok($sock($1).mark,2,32) }
+  if ($prop == realdir) { return $scriptdirfiles $+ $gettok($sock($1).mark,2,32) }
+  if ($prop == status) { return $gettok($sock($1).mark,3,32) }
+}
+
+alias dccchat.fserve {
+  var %dccport = $getdccport
+  bsend NOTICE $1 :DCC Chat ( $+ $bip $+ )
+  bsend PRIVMSG $1 :DCC CHAT CHAT $longip($bip) %dccport $+ 
+  var %sock = fserve.listen. $+ $r(1,9999) $+ $ctime
+  socklisten %sock %dccport
+  sockmark %sock $1 \ 0
+}
+
+on *:socklisten:fserve.listen.*:{
+  var %socket = fserve.active. $+ $r(1,9999) $+ $ctime | sockaccept %socket | sockmark %socket $sock($sockname).mark 
+  inc %fserver.counter | fserve.activate %socket | sockclose $sockname
+}
+
+alias -l fserve.activate {
+  sockwrite -n $1 0,1_ DarkBot  fileserver system __________ _____ ____ ___ __ _
+  sockwrite -n $1 0,1Welcome, $fserve.info($1).nick $+ , to my fileserver...
+  sockwrite -n $1 0,1You are the $ord(%fserver.counter) person to access my fileserver!
+  sockwrite -n $1 0,1Commands:7,1 ls dir cd get who info request help exit
+  sockwrite -n $1 0,1¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯ ¯¯¯¯¯ ¯¯¯¯ ¯¯¯ ¯¯ ¯
+  fserve.prompt $1
+}
+
+alias -l fserve.listfiles {
+  sockwrite -n $1 0,1Listing the contents of C: $+ $fserve.info($1).dir
+  if ($fserve.info($1).dir != \) {
+    sockwrite -n $1 0,1. (directory)
+    sockwrite -n $1 0,1.. (directory)
+  }
+  ; list directories
+  if ($finddir($fserve.info($1).realdir,*,0) > 0) {
+    var %§list = 1
+    while ($finddir($fserve.info($1).realdir,*,%§list,0)) { sockwrite -n $1 0,1 $+ $gettok($lower($shortfn($finddir($fserve.info($1).realdir,*,%§list,0))),-1,92) - (directory) | inc %§list }
+  }
+  ; list files
+  if ($findfile($fserve.info($1).realdir,*.*,0) > 0) {
+    var %§list = 1
+    while ($findfile($fserve.info($1).realdir,*.*,%§list,0)) { sockwrite -n $1 0,1 $+ $lower($nopath($shortfn($findfile($fserve.info($1).realdir,*.*,%§list,0)))) - ( $+ $file($shortfn($findfile($fserve.info($1).realdir,*.*,%§list,0))).size bytes) | inc %§list }
+  }
+  fserve.prompt $1
+}
+
+alias -l fserve.help {
+  if ($2 == help) { sockwrite -n $1 0,1Commands:7,1 ls dir cd get who info request help exit $+ $crlf $+ 0,1Type help <command> to learn more about each command... }
+  elseif ($2 == cd) { sockwrite -n $1 0,1cd <directory> - changes your actual directory, enabling you to explore my fserver }
+  elseif ($2 == ls) { sockwrite -n $1 0,1ls - lists all directories and files in the actual directory }
+  elseif ($2 == dir) { sockwrite -n $1 0,1dir - lists all directories and files in the actual directory }
+  elseif ($2 == get) { sockwrite -n $1 0,1get <file> - makes me send you the specified file }
+  elseif ($2 == who) { sockwrite -n $1 0,1who - shows who's using my fserver :P }
+  elseif ($2 == info) { sockwrite -n $1 0,1info - shows some nifty info about my fserver, check it out! :] }
+  elseif ($2 == request) { sockwrite -n $1 0,1request <whatever> - use this command to request something you would like to see on this fserver }
+  fserve.prompt $1
+}
+
+alias -l fserve.who {
+  var %§§§hahahah = 1
+  sockwrite -n $1 0,1Listing active users...
+  while ($sock(fserve.active.*,%§§§hahahah)) { sockwrite -n $1 0,1 [ $+ [ $fserve.info($sock(fserve.active.*,%§§§hahahah)).nick ] ] | inc %§§§hahahah }
+  fserve.prompt $1
+}
+
+; props to cosmo <nick@lucidreality.com> for providing winstats.dll
+alias -l fserve.getinfo { return $dll($scriptdirwinstats.dll, getInfo, $1) }
+alias -l fserve.information {
+  sockwrite -n $1 0,1DarkBot is running on  ( $+ Windows $+ $os $+ ) Platform
+  sockwrite -n $1 0,1 $+ $chr(160)
+  sockwrite -n $1 0,1CPU: $fserve.getinfo(getCPUCount) $fserve.getinfo(getCPUSpeed) $+ MHz $fserve.getinfo(getCPUVendor) x86 processor(s)
+  sockwrite -n $1 0,1Memory Load: $int($calc($fserve.getinfo(getPhysicalRAMAvailable)/1024/1024+1)) $+ $chr(47) $+ $int($calc($fserve.getinfo(getPhysicalRAMTotal)/1024/1024+1)) MB $chr(40) $+ $calc(100 - $fserve.getinfo(getPhysicalRAMLoad)) $+ % $+ $chr(41)
+  sockwrite -n $1 0,1Uptime: $duration($calc($ticks / 1000))
+  fserve.prompt $1
+}
+
+alias -l fserve.request {
+  sockwrite -n $1 your request will be notified to my master...
+  write $scriptdir $+ requests.txt " $+ $strip($2-) $+ " requested by $fserve.info($1).nick ( $+ $sock($1).ip $+ )
+  fserve.prompt $1
+}
+
+alias -l fserve.set.cd { sockmark $1 $fserve.info($1).nick $2 $fserve.info($1).status }
+alias -l fserve.cd {
+  if ($2 == \) { fserve.set.cd $1 \ | goto dumbass }
+  if ($asc(47) isin $2) || ($asc(92) isin $2) { goto dumbass }
+  if ($2 == .) { goto dumbass }
+  if ($2 == ..) {
+    if ($fserve.info($1).dir == \) { goto dumbass }
+    fserve.set.cd $1 $deltok($fserve.info($1).dir,-1,47) $+ \
+    goto dumbass
+  }
+  set %§b0fb0fb0f $fserve.info($1).realdir $+ $2
+  if ($isdir(%§b0fb0fb0f)) { echo -a ahash | fserve.set.cd $1 $fserve.info($1).dir $+ $2 $+ \ }
+  :dumbass
+  fserve.prompt $1
+}
+
+alias -l fserve.sendfile {
+  var %§xupamos = $fserve.info($1).realdir $+ $2
+  if ($isfile($shortfn(%§xupamos))) { dccsend $fserve.info($1).nick $shortfn(%§xupamos) | sockwrite -n $1 0,1sending $2 $+ ... }
+  fserve.prompt $1
+}
+
+on *:sockread:fserve.active.*:{
+  sockread %§scoopa-mos | tokenize 32 %§scoopa-mos | unset %§scoopa-mos
+  if ($2 == $null) && (($1 == ls) || ($1 == dir)) { fserve.listfiles $sockname }
+  elseif ($1 == cd) && ($2 != $null) && ($3 == $null) { fserve.cd $sockname $2 }
+  elseif ($1 == cd..) && ($2 == $null) { fserve.cd $sockname .. }
+  elseif ($1 == cd\) && ($2 == $null) { fserve.cd $sockname \ }
+  elseif ($1 == get) && ($2 != $null) { fserve.sendfile $sockname $2- }
+  elseif ($1 == help) { fserve.help $sockname $iif($2,$2,help) }
+  elseif ($1 == pwd) { fserve.prompt $sockname }
+  elseif ($1 == exit) || ($1 == quit) || ($1 == bye) { fserve.close $sockname }
+  elseif ($1 == who) { fserve.who $sockname }
+  elseif ($1 == info) { fserve.information $sockname }
+  elseif ($1 == request) && ($2 != $null) { fserve.request $sockname $2- }
+  else { sockwrite -n $sockname 0,1unknown command or bad syntax - type help for a list of valid commands and their syntax | fserve.prompt $sockname }
+}

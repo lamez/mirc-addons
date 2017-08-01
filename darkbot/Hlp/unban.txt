@@ -1,0 +1,3 @@
+sintax: !unban [#channel] <nick|host>
+example: !unban #pt-scripters lamest*!*@*
+access: op admin

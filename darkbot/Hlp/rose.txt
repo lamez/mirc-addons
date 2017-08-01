@@ -1,0 +1,3 @@
+sintax: !rose <nick>
+example: !rose PTS
+access: user voice op admin
